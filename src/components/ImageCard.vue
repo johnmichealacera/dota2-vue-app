@@ -1,15 +1,15 @@
 <template>
   <div class="max-w-sm rounded shadow-lg relative group">
     <div>
-        <img class="w-full group-hover:opacity-30" :src="heroData.img" alt="Dota hero">
-        <router-link :to="'/hero/' + heroData.id">
-          <div class="sm:px-6 sm:py-4">
-            <div class="text-xxs font-semibold sm:font-bold sm:text-base sm:mb-2 hover:underline">
-              {{ heroData.name }}
-            </div>
-            <p class="text-xxs sm:text-base">{{ heroData.attackType }}</p>
+      <img class="w-full group-hover:opacity-30" :src="heroData.img" alt="Dota hero">
+      <router-link :to="'/hero/' + heroData.id">
+        <div class="sm:px-6 sm:py-4">
+          <div class="text-xxs font-semibold sm:font-bold sm:text-base sm:mb-2 hover:underline">
+            {{ heroData.name }}
           </div>
-        </router-link>
+          <p class="text-xxs sm:text-base">{{ heroData.attackType }}</p>
+        </div>
+      </router-link>
     </div>
     <div class="my-0 opacity-0 group-hover:opacity-100 absolute top-0 sm:top-0.5 w-full cursor-text">
       <span class="text-sm text-center font-black hidden sm:block">Strength: {{ heroData.baseStr }}</span>

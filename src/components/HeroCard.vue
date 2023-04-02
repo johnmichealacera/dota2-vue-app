@@ -1,7 +1,10 @@
 <template>
   <div class="hero-card">
-    <dota-loader :isLoading="isLoading"/>
-    <div class="self-start border-2"  v-if="!isLoading">
+    <div v-if="isLoading" class="flex loader">
+      <dota-loader :isLoading="isLoading" class="grow-0"/>
+      <dota-loader :isLoading="isLoading" class="grow"/>
+    </div>
+    <div class="self-start border-2" v-if="!isLoading">
       <img :src="hero.img" :alt="hero.name" />
       <h2 class="text-xs sm:text-2xl font-bold sm:font-bold">{{ hero.name }}</h2>
       <ul class="text-xxs sm:text-xl">
@@ -23,8 +26,7 @@
         <li class="sm:hidden block">MS: {{ hero.moveSpeed }}</li>
       </ul>
     </div>
-    <dota-loader :isLoading="isLoading"/>
-    <div class="border-2"  v-if="!isLoading">
+    <div class="border-2" v-if="!isLoading">
       <h1>Hero Matchups</h1>
       <div class="grid grid-cols-6 sm:gap-4">
         <div v-for="hero in heroMatchups" :key="hero.id">
@@ -40,7 +42,7 @@
                 <p class="text-xxs sm:text-base">Win rate: {{ hero.winRate.toFixed(1) }}%</p>
               </div>
             </router-link>
-        </div>
+          </div>
         </div>
       </div>
     </div>
@@ -110,5 +112,9 @@ export default defineComponent({
 .hero-card img {
   max-width: 100%;
   border-radius: 0.5rem;
+}
+
+.loader {
+  width: 100vw;
 }
 </style>

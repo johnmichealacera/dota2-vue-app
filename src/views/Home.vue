@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h1 class="text-xl sm:text-3xl font-bold text-center sm:my-4">Explore the World of Dota Heroes</h1>
-    <div class="grid grid-cols-10 sm:gap-4 overflow-y-scroll scrollbar-thumb-red scrollbar-track-gray-200">
-      <dota-loader :isLoading="isLoading"/>
+    <h1 class="text-base sm:text-3xl font-bold text-center sm:my-4">Explore the World of Dota Heroes</h1>
+    <div class="grid grid-cols-10 sm:gap-4">
+      <dota-loader :isLoading="isLoading" loaderType="home"/>
       <ImageCard v-for="hero in heroes" :key="hero.id" :heroData="hero"/>
     </div>
   </div>
@@ -48,12 +48,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-.scrollbar-thumb-red {
-  scrollbar-color: red;
-}
-
-.scrollbar-track-gray-200 {
-  scrollbar-track-color: #edf2f7;
-}
-</style>

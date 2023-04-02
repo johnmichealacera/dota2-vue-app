@@ -1,5 +1,5 @@
 <template>
-  <div class="skeleton-loader" v-if="isLoading">
+  <div class="skeleton-loader w-14 sm:w-52" :class="loaderStyle" v-if="isLoading">
     <div class="skeleton-text"></div>
     <div class="skeleton-text"></div>
     <div class="skeleton-text"></div>
@@ -12,6 +12,10 @@ import { toRefs } from 'vue';
 export default {
   name: 'DotaLoader',
   props: { 
+    loaderType: {
+      type: String, 
+      default: '',
+    },
     isLoading: { 
       type: Boolean, 
       default: false 
@@ -20,16 +24,13 @@ export default {
       type: Number, 
       default: 200 
     },
-    // styles: {
-    //   type: Array,
-    //   default: [],
-    // }
   },
   setup(props) {
-    const { styles } = toRefs(props);
+    const { loaderType } = toRefs(props);
+    const loaderStyle = loaderType.value === 'home' ? 'home-loader' : 'matchup-loader';
 
     return {
-      styles,
+      loaderStyle,
     };
   }
 }
@@ -40,13 +41,16 @@ export default {
   flex-direction: column;
   align-items: center;
   animation: pulse 1s ease-in-out infinite;
-  width: 200px;
 }
 .skeleton-text {
   width: 80%;
   height: 20px;
   background-color: #e1e1e1;
   margin: 10px 0;
+}
+.home-loader {
+  width: 100vw !important;
+  box-sizing: border-box;
 }
 @keyframes pulse {
   0% {
