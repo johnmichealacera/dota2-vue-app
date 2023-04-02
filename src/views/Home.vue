@@ -25,7 +25,7 @@ export default {
     const isLoading = ref(false);
     const fetchData = () => {
       isLoading.value = true;
-      axios.get('http://localhost:8000/heroes')
+      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/heroes`)
       .then(response => {
         // handle response
         heroes.value = response.data;

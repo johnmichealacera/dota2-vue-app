@@ -67,7 +67,7 @@ export default defineComponent({
     const isLoading = ref(false);
     const fetchData = () => {
       isLoading.value = true;
-      axios.get(`http://localhost:8000/hero/${route.params.id}`)
+      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/hero/${route.params.id}`)
         .then(response => {
           hero.value = response.data;
         })
@@ -75,7 +75,7 @@ export default defineComponent({
           console.log('error', error);
         });
 
-      axios.get(`http://localhost:8000/hero-matchup/${route.params.id}`)
+      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/hero-matchup/${route.params.id}`)
         .then(response => {
           heroMatchups.value = response.data;
           isLoading.value = false;
