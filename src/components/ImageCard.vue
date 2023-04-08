@@ -1,32 +1,48 @@
 <template>
   <div class="max-w-sm rounded shadow-lg relative group">
-    <div>
-      <img class="w-full group-hover:opacity-30" :src="heroData.img" alt="Dota hero">
-      <router-link :to="'/hero/' + heroData.id">
+    <div class="flex flex-col items-center">
+      <img class="w-full group-hover:opacity-30 sm:img-card-mobile img-card-desktop" :src="itemData.img" alt="No img">
+      <router-link :to="`/item/${itemData.id}/${itemType}`">
         <div class="sm:px-6 sm:py-4">
           <div class="text-xxs font-semibold sm:font-bold sm:text-base sm:mb-2 hover:underline">
-            {{ heroData.name }}
+            {{ itemData.name }}
           </div>
-          <p class="text-xxs sm:text-base">{{ heroData.attackType }}</p>
+          <p class="text-xxs sm:text-base">{{ itemData.attackType }}</p>
         </div>
       </router-link>
     </div>
     <div class="my-0 opacity-0 group-hover:opacity-100 absolute top-0 sm:top-0.5 w-full cursor-text">
-      <span class="text-sm text-center font-black hidden sm:block">Strength: {{ heroData.baseStr }}</span>
-      <span class="text-xxs text-center sm:hidden block">Str: {{ heroData.baseStr }}</span>
-      <span class="text-sm text-center font-black hidden sm:block">Agility: {{ heroData.baseAgi }}</span>
-      <span class="text-xxs text-center sm:hidden block">Agi: {{ heroData.baseAgi }}</span>
-      <span class="text-sm text-center font-black hidden sm:block">Intelligence: {{ heroData.baseInt }}</span>
-      <span class="text-xxs text-center sm:hidden block">Int: {{ heroData.baseInt }}</span>
+      <span class="text-sm text-center font-black hidden sm:block">{{itemType === 'hero' ? `Strength: ${itemData.hoverFirst}` : `Rating: ${itemData.hoverFirst}`}}</span>
+      <span class="text-xxs text-center sm:hidden block">{{itemType === 'hero' ? `Str: ${itemData.hoverFirst}` : `Rtg: ${itemData.hoverFirst}`}}</span>
+      <span class="text-sm text-center font-black hidden sm:block">{{itemType === 'hero' ? `Agility: ${itemData.hoverSecond}` : `Wins: ${itemData.hoverSecond}`}}</span>
+      <span class="text-xxs text-center sm:hidden block">{{itemType === 'hero' ? `Agi: ${itemData.hoverSecond}` : `Wins: ${itemData.hoverSecond}`}}</span>
+      <span class="text-sm text-center font-black hidden sm:block">{{itemType === 'hero' ? `Intelligence: ${itemData.hoverThird}` : `Losses: ${itemData.hoverThird}`}}</span>
+      <span class="text-xxs text-center sm:hidden block">{{itemType === 'hero' ? `Int: ${itemData.hoverThird}` : `Loss: ${itemData.hoverThird}`}}</span>
     </div>
   </div>
 </template>
 
 <script>
+import { ref } from 'vue';
 export default {
   props: {
-    heroData: Object,
+    itemType: String,
+    itemData: Object,
   },
+  setup() {
+    const isImgLoaded = ref(false);
+    const isImgLoading = ref(true);
+    const onImgLoad = () => {
+      isImgLoaded.value = true;
+      this.isLoading = false;
+    };
+
+    return {
+      onImgLoad,
+      isImgLoaded,
+      isImgLoading,
+    }
+  }
 };
 </script>
 
@@ -77,5 +93,15 @@ export default {
 
 .hover\:opacity:hover {
   opacity: 100;
+}
+
+.img-card-desktop {
+  width: 90px;
+  height: 60px;
+}
+
+.img-card-mobile {
+  width: 90px;
+  height: 60px;
 }
 </style>

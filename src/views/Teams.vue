@@ -1,9 +1,10 @@
 <template>
   <div>
-    <h1 class="text-base sm:text-3xl font-bold text-center sm:my-4">Explore the World of Dota Heroes</h1>
+    <h1 class="text-base sm:text-3xl font-bold text-center sm:my-4">Dota Teams</h1>
     <div class="grid grid-cols-10 sm:gap-4">
       <dota-loader :isLoading="isLoading" loaderType="home"/>
-      <ImageCard v-for="hero in heroes" :key="hero.id" :itemData="hero" itemType="hero"/>
+      <!-- <img :src="team.logo_url" alt="no image" v-for="team in proTeams" :key="team.id" class="team-img"> -->
+      <ImageCard v-for="team in proTeams" :key="team.id" :itemData="team" itemType="team"/>
     </div>
   </div>
 </template>
@@ -15,20 +16,20 @@ import ImageCard from '../components/ImageCard.vue';
 import DotaLoader from '../components/Loader.vue';
 
 export default {
-  name: 'DotaHome',
+  name: 'DotaTeams',
   components: {
-    ImageCard,
     DotaLoader,
+    ImageCard,
   },
   setup() {
-    const heroes = ref([]);
+    const proTeams = ref([]);
     const isLoading = ref(false);
     const fetchData = () => {
       isLoading.value = true;
-      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/heroes`)
+      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/pro-teams`)
       .then(response => {
         // handle response
-        heroes.value = response.data;
+        proTeams.value = response.data;
         isLoading.value = false;
       })
       .catch(error => {
@@ -42,9 +43,15 @@ export default {
     })
 
     return {
-      heroes,
+      proTeams,
       isLoading,
     };
   }
 }
 </script>
+<style scoped>
+.team-img {
+  width: 77px;
+  height: 43px;
+}
+</style>

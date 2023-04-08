@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DotaHome from './views/Home.vue';
-import HeroCard from './components/HeroCard.vue';
+import DotaPlayers from './views/Players.vue';
+import DotaTeams from './views/Teams.vue';
+import ItemCard from './components/ItemCard.vue';
 
 const routes = [
   {
@@ -9,9 +11,19 @@ const routes = [
     component: DotaHome
   },
   {
-    path: '/hero/:id',
-    name: 'HeroCard',
-    component: HeroCard
+    path: '/players',
+    name: 'DotaPlayers',
+    component: DotaPlayers
+  },
+  {
+    path: '/teams',
+    name: 'DotaTeams',
+    component: DotaTeams
+  },
+  {
+    path: '/item/:id/:type',
+    name: 'ItemCard',
+    component: ItemCard
   },
 ]
 
