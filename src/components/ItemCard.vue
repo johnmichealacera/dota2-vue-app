@@ -45,7 +45,7 @@
         <div v-for="item in itemMatchups" :key="item.id">
           <div>
             <router-link v-if="item" :to="{ name: 'ItemCard', params: { id: item.id } }">
-              <img class="w-full group-hover:opacity-30" :src="item.img" alt="Dota hero">
+              <img class="w-full group-hover:opacity-30" :src="item.img" alt="No img">
               <div class="sm:px-6 sm:py-4">
                 <div class="text-xxs font-semibold sm:font-bold sm:text-base sm:mb-2 hover:underline">
                   {{ item.name }}
