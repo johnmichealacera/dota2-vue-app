@@ -1,7 +1,7 @@
 # Dota2 Vue.js App
 This is a Vue.js app that allows users to view and analyze Dota2 heroes, teams information, and matchups.
 
-# Installation
+## Installation
 1. Clone the repository: `git clone https://github.com/johnmichealacera/dota2-vue-app.git`
 2. Navigate to the project directory: `cd dota2-vue-app`
 3. Install dependencies: `npm install`
