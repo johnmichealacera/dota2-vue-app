@@ -2,8 +2,8 @@ const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const Dotenv = require('dotenv-webpack');
-// const webpack = require('webpack');
+// const Dotenv = require('dotenv-webpack');
+const webpack = require('webpack');
 
 module.exports = {
   entry: './src/main.js',
@@ -31,6 +31,14 @@ module.exports = {
         }
       },
       {
+        test: /\.(png|jpg|gif|svg)$/,
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]?[hash]',
+          outputPath: 'images/' // Specifies the output directory for the image files
+        }
+      },
+      {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
         loader: 'file-loader',
         options: {
@@ -48,10 +56,11 @@ module.exports = {
       filename: '[name].css',
       chunkFilename: '[id].css'
     }),
-    new Dotenv(),
-    // new webpack.DefinePlugin({
-    //   'process.env.VUE_APP_DOTA_BACKEND_API': JSON.stringify(process.env.VUE_APP_DOTA_BACKEND_API),
-    // }),
+    // new Dotenv(),
+    // TODO: Find a way to read this in an env file
+    new webpack.DefinePlugin({
+      'process.env.VUE_APP_DOTA_BACKEND_API': JSON.stringify("https://dota2-api-backend-1.onrender.com"),
+    }), 
   ],
   devServer: {
     historyApiFallback: true,
