@@ -47,7 +47,7 @@ module.exports = {
       filename: '[name].css',
       chunkFilename: '[id].css'
     }),
-    new Dotenv(),
+    // new Dotenv(),
   ],
   devServer: {
     historyApiFallback: true,
