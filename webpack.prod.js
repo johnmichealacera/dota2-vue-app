@@ -62,11 +62,11 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env.VUE_APP_DOTA_BACKEND_API': JSON.stringify("https://dota2-api-backend-1.onrender.com"),
     }), 
-    new CopyWebpackPlugin({
-      patterns: [
-        { from: 'public/hero-icon.png', to: '.' }
-      ]
-    }),
+    // new CopyWebpackPlugin({
+    //   patterns: [
+    //     { from: 'public/hero-icon.png', to: '.' }
+    //   ]
+    // }),
   ],
   devServer: {
     historyApiFallback: true,
