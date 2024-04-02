@@ -2,6 +2,8 @@ const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+// const Dotenv = require('dotenv-webpack');
+const webpack = require('webpack');
 
 module.exports = {
   entry: './src/main.js',
@@ -45,6 +47,10 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: '[name].css',
       chunkFilename: '[id].css'
+    }),
+    // new Dotenv(),
+    new webpack.DefinePlugin({
+      'process.env.VUE_APP_DOTA_BACKEND_API': JSON.stringify(process.env.VUE_APP_DOTA_BACKEND_API),
     }),
   ],
   devServer: {
