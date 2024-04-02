@@ -64,7 +64,12 @@ module.exports = {
     }), 
     new CopyPlugin({
       patterns: [
-        // { from: "public/hero-icon.png", to: "dist" }
+        {
+          from: "public/*.png",
+          to() {
+            return "dest/";
+          },
+        },
       ]
     }),
   ],
