@@ -2,7 +2,7 @@ const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const FileManagerPlugin = require('filemanager-webpack-plugin');
 
 module.exports = {
   entry: './src/main.js',
@@ -44,10 +44,14 @@ module.exports = {
       template: './public/index.html'
     }),
     new Dotenv(),
-    new CopyWebpackPlugin({
-      patterns: [
-        { from: 'public/hero-icon.png', to: '.' }
-      ]
+    new FileManagerPlugin({
+      events: {
+        onEnd: {
+          copy: [
+            { source: "public/*.png", destination: "dist/" },
+          ]
+        }
+      }
     }),
   ],
   devServer: {
