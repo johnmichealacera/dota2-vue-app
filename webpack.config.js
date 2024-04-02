@@ -2,6 +2,7 @@ const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: './src/main.js',
@@ -43,6 +44,11 @@ module.exports = {
       template: './public/index.html'
     }),
     new Dotenv(),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'public/hero-icon.png', to: '.' }
+      ]
+    }),
   ],
   devServer: {
     static: {

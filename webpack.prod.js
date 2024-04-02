@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 // const Dotenv = require('dotenv-webpack');
 const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: './src/main.js',
@@ -61,6 +62,11 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env.VUE_APP_DOTA_BACKEND_API': JSON.stringify("https://dota2-api-backend-1.onrender.com"),
     }), 
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'public/hero-icon.png', to: '.' }
+      ]
+    }),
   ],
   devServer: {
     historyApiFallback: true,
