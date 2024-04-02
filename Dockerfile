@@ -1,13 +1,27 @@
-FROM node:lts-alpine
+FROM node:lts-alpine AS builder
 
 WORKDIR /usr/src/app
 
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy the rest of the application code
 COPY . .
 
-ENV VUE_APP_DOTA_BACKEND_API=http://api:3000
+# Build the Vue.js application
+RUN npm run build
 
-RUN npm install
+# Use a new stage for the production image
+FROM nginx:alpine
 
-EXPOSE 8080
+# Copy the built files from the previous stage to the nginx server
+COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
 
-CMD ["npm", "run", "serve"]
+# Expose port 80
+EXPOSE 80
+
+# Start the nginx server
+CMD ["nginx", "-g", "daemon off;"]
