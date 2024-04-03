@@ -9,10 +9,10 @@
   <vue-awesome-paginate
     :total-items="paginationData.totalHeroes"
     :items-per-page="paginationData.pageSize"
-    :max-pages-shown="paginationData.totalPages"
+    :max-pages-shown="5"
     v-model="currentPage"
     :on-click="onClickHandler"
-    />
+  />
 </template>
 
 <script>
@@ -33,25 +33,24 @@ export default {
     };
     const currentPage = ref(1);
     const paginationData = ref({
-        totalHeroes: 0,
-        currentPage: 1,
-        pageSize: 10,
-        totalPages: 1
-      });
-
+      totalHeroes: 0,
+      currentPage: 1,
+      pageSize: 10,
+      totalPages: 1
+    });
     const heroes = ref([]);
     const isLoading = ref(false);
     const fetchData = (page = 1) => {
       isLoading.value = true;
       axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/heroes`, { params: { pageSize: 30, page } })
       .then(response => {
-        heroes.value = response.data?.heroes;
+        heroes.value = response.data?.items;
         paginationData.value = {
-        totalHeroes: response.data?.pagination?.totalHeroes,
-        currentPage: response.data?.pagination?.currentPage,
-        pageSize: response.data?.pagination?.pageSize,
-        totalPages: response.data?.pagination?.totalPages
-      };
+          totalHeroes: response.data?.pagination?.totalItems,
+          currentPage: response.data?.pagination?.currentPage,
+          pageSize: response.data?.pagination?.pageSize,
+          totalPages: response.data?.pagination?.totalPages
+        };
         isLoading.value = false;
       })
       .catch(error => {
@@ -60,7 +59,7 @@ export default {
     }
     
     onMounted(() => {
-      fetchData();
+      fetchData(currentPage.value);
     });
 
     return {

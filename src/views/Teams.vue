@@ -7,6 +7,13 @@
       <ImageCard v-for="team in proTeams" :key="team.id" :itemData="team" itemType="team"/>
     </div>
   </div>
+  <vue-awesome-paginate
+    :total-items="paginationData.totalTeams"
+    :items-per-page="paginationData.pageSize"
+    :max-pages-shown="5"
+    v-model="currentPage"
+    :on-click="onClickHandler"
+  />
 </template>
 
 <script>
@@ -24,12 +31,27 @@ export default {
   setup() {
     const proTeams = ref([]);
     const isLoading = ref(false);
-    const fetchData = () => {
+    const onClickHandler = (page) => {
+      fetchData(page);
+    };
+    const currentPage = ref(1);
+    const paginationData = ref({
+      totalTeams: 0,
+      currentPage: 1,
+      pageSize: 10,
+      totalPages: 1
+    });
+    const fetchData = (page) => {
       isLoading.value = true;
-      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/pro-teams`)
+      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/pro-teams`, { params: { pageSize: 30, page } })
       .then(response => {
-        // handle response
-        proTeams.value = response.data;
+        proTeams.value = response.data?.items;
+        paginationData.value = {
+          totalTeams: response.data?.pagination?.totalItems,
+          currentPage: response.data?.pagination?.currentPage,
+          pageSize: response.data?.pagination?.pageSize,
+          totalPages: response.data?.pagination?.totalPages
+        };
         isLoading.value = false;
       })
       .catch(error => {
@@ -39,12 +61,15 @@ export default {
     }
     
     onMounted(() => {
-      fetchData();
+      fetchData(currentPage.value);
     })
 
     return {
       proTeams,
       isLoading,
+      onClickHandler,
+      currentPage,
+      paginationData,
     };
   }
 }
