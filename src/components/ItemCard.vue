@@ -27,7 +27,20 @@
       </ul>
     </div>
     <div class="self-start border-2" v-if="!isLoading && itemType === 'team'">
-      <img :src="mainItem.img" :alt="mainItem.name" />
+      <template v-if="mainItem.img">
+        <object
+          type="image/png"
+          :data="mainItem.img"
+          width="150"
+          height="150"
+          aria-label="This image should exist, but alas it does not"
+        >
+          <img src="/team-logo.png" alt="Fallback image" width="150" height="300" />
+        </object>
+      </template>
+      <template v-else>
+        <img src="/team-logo.png" alt="Fallback image" width="150" height="500" />
+      </template>
       <h2 class="text-xs sm:text-2xl font-bold sm:font-bold">{{ mainItem.name }}</h2>
       <ul class="text-xxs sm:text-xl">
         <li class="hidden sm:block">Rating: {{ mainItem.rating }}</li>
@@ -45,7 +58,21 @@
         <div v-for="item in itemMatchups" :key="item.id">
           <div>
             <router-link v-if="item" :to="{ name: 'ItemCard', params: { id: item.id } }">
-              <img class="w-full group-hover:opacity-30" :src="item.img" alt="No img">
+              <template v-if="item.img">
+                <object
+                  class="w-full group-hover:opacity-30"
+                  type="image/png"
+                  :data="item.img"
+                  width="150"
+                  height="150"
+                  aria-label="This image should exist, but alas it does not"
+                >
+                  <img src="/team-logo.png" alt="Fallback image" width="150" height="300" class="w-full group-hover:opacity-30"/>
+                </object>
+              </template>
+              <template v-else>
+                <img src="/team-logo.png" alt="Fallback image" width="150" height="500" class="w-full group-hover:opacity-30"/>
+              </template>
               <div class="sm:px-6 sm:py-4">
                 <div class="text-xxs font-semibold sm:font-bold sm:text-base sm:mb-2 hover:underline">
                   {{ item.name }}
