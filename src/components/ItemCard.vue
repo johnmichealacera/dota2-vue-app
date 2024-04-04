@@ -60,6 +60,13 @@
       </div>
     </div>
   </div>
+  <vue-awesome-paginate
+    :total-items="paginationData.totalTeams"
+    :items-per-page="paginationData.pageSize"
+    :max-pages-shown="5"
+    v-model="currentPage"
+    :on-click="onClickHandler"
+  />
 </template>
 
 <script>
@@ -78,7 +85,17 @@ export default defineComponent({
     const itemMatchups = ref([]);
     const route = useRoute();
     const isLoading = ref(false);
-    const fetchData = () => {
+    const onClickHandler = (page) => {
+      fetchData(page);
+    };
+    const currentPage = ref(1);
+    const paginationData = ref({
+      totalTeams: 0,
+      currentPage: 1,
+      pageSize: 10,
+      totalPages: 1
+    });
+    const fetchData = (page) => {
       isLoading.value = true;
       if (route.params.type === 'hero') {
         axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/hero/${route.params.id}`)
@@ -86,16 +103,22 @@ export default defineComponent({
           mainItem.value = response.data;
         })
         .catch(error => {
-          console.log('error', error);
+          console.error('error', error);
         });
 
-      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/hero-matchup/${route.params.id}`)
+      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/hero-matchup/${route.params.id}`, { params: { pageSize: 30, page } })
         .then(response => {
-          itemMatchups.value = response.data;
+          itemMatchups.value = response.data?.items;
+          paginationData.value = {
+            totalTeams: response.data?.pagination?.totalItems,
+            currentPage: response.data?.pagination?.currentPage,
+            pageSize: response.data?.pagination?.pageSize,
+            totalPages: response.data?.pagination?.totalPages
+          };
           isLoading.value = false;
         })
         .catch(error => {
-          console.log('error', error);
+          console.error('error', error);
         });
       }
       else if (route.params.type === 'team') {
@@ -104,21 +127,27 @@ export default defineComponent({
           mainItem.value = response.data;
         })
         .catch(error => {
-          console.log('error', error);
+          console.error('error', error);
         });
-        axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/team-matchup/${route.params.id}`)
+        axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/team-matchup/${route.params.id}`, { params: { pageSize: 30, page } })
         .then(response => {
-          itemMatchups.value = response.data;
+          itemMatchups.value = response.data?.items;
+          paginationData.value = {
+            totalTeams: response.data?.pagination?.totalItems,
+            currentPage: response.data?.pagination?.currentPage,
+            pageSize: response.data?.pagination?.pageSize,
+            totalPages: response.data?.pagination?.totalPages
+          };
           isLoading.value = false;
         })
         .catch(error => {
-          console.log('error', error);
+          console.error('error', error);
         });
       }
     }
 
     watch(() => route.params.id, () => {
-      fetchData();
+      fetchData(currentPage.value);
     }, { immediate: true });
 
     return {
@@ -126,6 +155,9 @@ export default defineComponent({
       itemMatchups,
       isLoading,
       itemType: route.params.type,
+      onClickHandler,
+      currentPage,
+      paginationData,
     };
   }
 });

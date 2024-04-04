@@ -55,7 +55,6 @@ export default {
         isLoading.value = false;
       })
       .catch(error => {
-        // handle error
         console.log('error', error);
       });
     }
