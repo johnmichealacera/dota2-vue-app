@@ -1,18 +1,18 @@
 <template>
-  <div>
+  <div >
     <h1 class="text-base sm:text-3xl font-bold text-center sm:my-4">Explore the World of Dota Heroes</h1>
     <div class="grid grid-cols-10 sm:gap-4">
       <dota-loader :isLoading="isLoading" loaderType="home"/>
       <ImageCard v-for="hero in heroes" :key="hero.id" :itemData="hero" itemType="hero"/>
     </div>
+    <vue-awesome-paginate
+      :total-items="paginationData.totalHeroes"
+      :items-per-page="paginationData.pageSize"
+      :max-pages-shown="5"
+      v-model="currentPage"
+      :on-click="onClickHandler"
+    />
   </div>
-  <vue-awesome-paginate
-    :total-items="paginationData.totalHeroes"
-    :items-per-page="paginationData.pageSize"
-    :max-pages-shown="5"
-    v-model="currentPage"
-    :on-click="onClickHandler"
-  />
 </template>
 
 <script>

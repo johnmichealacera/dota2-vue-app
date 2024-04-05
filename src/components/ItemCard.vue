@@ -27,20 +27,7 @@
       </ul>
     </div>
     <div class="self-start border-2" v-if="!isLoading && itemType === 'team'">
-      <template v-if="mainItem.img">
-        <object
-          type="image/png"
-          :data="mainItem.img"
-          width="150"
-          height="150"
-          aria-label="This image should exist, but alas it does not"
-        >
-          <img src="/team-logo.png" alt="Fallback image" width="150" height="300" />
-        </object>
-      </template>
-      <template v-else>
-        <img src="/team-logo.png" alt="Fallback image" width="150" height="500" />
-      </template>
+      <fallback :imageUrl="mainItem.img" />
       <h2 class="text-xs sm:text-2xl font-bold sm:font-bold">{{ mainItem.name }}</h2>
       <ul class="text-xxs sm:text-xl">
         <li class="hidden sm:block">Rating: {{ mainItem.rating }}</li>
@@ -58,21 +45,7 @@
         <div v-for="item in itemMatchups" :key="item.id">
           <div>
             <router-link v-if="item" :to="{ name: 'ItemCard', params: { id: item.id } }">
-              <template v-if="item.img">
-                <object
-                  class="w-full group-hover:opacity-30"
-                  type="image/png"
-                  :data="item.img"
-                  width="150"
-                  height="150"
-                  aria-label="This image should exist, but alas it does not"
-                >
-                  <img src="/team-logo.png" alt="Fallback image" width="150" height="300" class="w-full group-hover:opacity-30"/>
-                </object>
-              </template>
-              <template v-else>
-                <img src="/team-logo.png" alt="Fallback image" width="150" height="500" class="w-full group-hover:opacity-30"/>
-              </template>
+              <fallback :imageUrl="item.img" />
               <div class="sm:px-6 sm:py-4">
                 <div class="text-xxs font-semibold sm:font-bold sm:text-base sm:mb-2 hover:underline">
                   {{ item.name }}
@@ -101,11 +74,13 @@ import { defineComponent, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 import DotaLoader from './Loader.vue';
+import Fallback from './Fallback.vue';
 
 export default defineComponent({
   name: 'ItemCard',
   components: {
     DotaLoader,
+    Fallback,
   },
   setup() {
     const mainItem = ref([]);
@@ -133,7 +108,7 @@ export default defineComponent({
           console.error('error', error);
         });
 
-      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/hero-matchup/${route.params.id}`, { params: { pageSize: 30, page } })
+      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/hero-matchup/${route.params.id}`, { params: { pageSize: 18, page } })
         .then(response => {
           itemMatchups.value = response.data?.items;
           paginationData.value = {
@@ -156,7 +131,7 @@ export default defineComponent({
         .catch(error => {
           console.error('error', error);
         });
-        axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/team-matchup/${route.params.id}`, { params: { pageSize: 30, page } })
+        axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/team-matchup/${route.params.id}`, { params: { pageSize: 18, page } })
         .then(response => {
           itemMatchups.value = response.data?.items;
           paginationData.value = {

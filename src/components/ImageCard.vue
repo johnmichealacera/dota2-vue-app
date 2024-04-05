@@ -1,21 +1,7 @@
 <template>
   <div class="max-w-sm rounded shadow-lg relative group">
     <div class="flex flex-col items-center">
-      <template v-if="itemData.img">
-        <object
-          class="w-full group-hover:opacity-30 sm:img-card-mobile img-card-desktop"
-          type="image/png"
-          :data="itemData.img"
-          width="150"
-          height="150"
-          aria-label="This image should exist, but alas it does not"
-        >
-          <img src="/team-logo.png" alt="Fallback image" width="150" height="300" class="w-full group-hover:opacity-30 sm:img-card-mobile img-card-desktop"/>
-        </object>
-      </template>
-      <template v-else>
-        <img src="/team-logo.png" alt="Fallback image" width="150" height="500" class="w-full group-hover:opacity-30 sm:img-card-mobile img-card-desktop"/>
-      </template>
+      <fallback :imageUrl="itemData.img"/>
       <router-link :to="`/item/${itemData.id}/${itemType}`">
         <div class="sm:px-6 sm:py-4">
           <div class="text-xxs font-semibold sm:font-bold sm:text-base sm:mb-2 hover:underline">
@@ -38,7 +24,12 @@
 
 <script>
 import { ref } from 'vue';
+import Fallback from './Fallback.vue';
 export default {
+  name: "ImageCardComponent",
+  components: {
+    Fallback,
+  },
   props: {
     itemType: String,
     itemData: Object,
@@ -107,15 +98,5 @@ export default {
 
 .hover\:opacity:hover {
   opacity: 100;
-}
-
-.img-card-desktop {
-  width: 90px;
-  height: 60px;
-}
-
-.img-card-mobile {
-  width: 90px;
-  height: 60px;
 }
 </style>

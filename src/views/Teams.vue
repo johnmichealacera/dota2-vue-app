@@ -3,17 +3,16 @@
     <h1 class="text-base sm:text-3xl font-bold text-center sm:my-4">Dota Teams</h1>
     <div class="grid grid-cols-10 sm:gap-4">
       <dota-loader :isLoading="isLoading" loaderType="home"/>
-      <!-- <img :src="team.logo_url" alt="no image" v-for="team in proTeams" :key="team.id" class="team-img"> -->
       <ImageCard v-for="team in proTeams" :key="team.id" :itemData="team" itemType="team"/>
     </div>
+    <vue-awesome-paginate
+      :total-items="paginationData.totalTeams"
+      :items-per-page="paginationData.pageSize"
+      :max-pages-shown="5"
+      v-model="currentPage"
+      :on-click="onClickHandler"
+    />
   </div>
-  <vue-awesome-paginate
-    :total-items="paginationData.totalTeams"
-    :items-per-page="paginationData.pageSize"
-    :max-pages-shown="5"
-    v-model="currentPage"
-    :on-click="onClickHandler"
-  />
 </template>
 
 <script>
