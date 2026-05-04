@@ -5,6 +5,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 // const Dotenv = require('dotenv-webpack');
 const webpack = require('webpack');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
+const backendApiUrl = process.env.VUE_APP_DOTA_BACKEND_API || 'https://dota2-api-rust.onrender.com';
 
 module.exports = {
   entry: './src/main.js',
@@ -59,9 +60,8 @@ module.exports = {
       chunkFilename: '[id].css'
     }),
     // new Dotenv(),
-    // TODO: Find a way to read this in an env file
     new webpack.DefinePlugin({
-      'process.env.VUE_APP_DOTA_BACKEND_API': JSON.stringify("https://dota2-api-backend.onrender.com"),
+      'process.env.VUE_APP_DOTA_BACKEND_API': JSON.stringify(backendApiUrl),
       __VUE_OPTIONS_API__: JSON.stringify(true),
       __VUE_PROD_DEVTOOLS__: JSON.stringify(false),
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false),
