@@ -1,35 +1,52 @@
-# Dota2 Vue.js App
-This is a Vue.js app that allows users to view and analyze Dota2 heroes, teams information, and matchups.
+# Dota Mate - Portfolio UI Project
 
-## Installation
-1. Clone the repository: `git clone https://github.com/johnmichealacera/dota2-vue-app.git`
-2. Navigate to the project directory: `cd dota2-vue-app`
-3. Install dependencies: `npm install`
-### Environment Variables
-The application requires the following environment variable to be set:
+A modern Vue 3 frontend for exploring Dota 2 heroes, pro teams, and matchup data from OpenDota-powered APIs.
 
-`VUE_APP_DOTA_BACKEND_API`: : The backend service the vue app fetches the dota info.
+## Why This Project
 
-Create a `.env` file in the root directory of the project with the following values:
-`VUE_APP_DOTA_BACKEND_API=http://localhost:8000`
-## Usage
-1. Start the development server: `npm run serve`
-2. Navigate to `http://localhost:8080/` in your browser
-## Built With
-- [Vue.js](https://vuejs.org/v2/guide/) - The web framework used
-- [Vue Router](https://router.vuejs.org/) - Router for single-page applications
-- [Axios](https://github.com/axios/axios/blob/master/README.md) - Promise-based HTTP client
-- [Tailwind](https://tailwindcss.com/docs) - Front-end component library
-## Contributing
-1. Fork the repository
-2. Create a new branch: `git checkout -b feature-name`
-3. Make changes and commit: `git commit -m 'Add some feature'`
-4. Push to the branch: `git push origin feature-name`
-5. Submit a pull request
+This app is intentionally lightweight and focused on frontend craftsmanship:
+- polished UI layout and visual hierarchy
+- responsive card-based exploration
+- smooth interactions and loading states
+- clean, maintainable Vue component structure
+
+## Features
+
+- Hero explorer with paginated results
+- Pro team explorer with ratings and records
+- Detail pages with matchup breakdowns
+- Responsive layout optimized for mobile and desktop
+- Skeleton loading states and fallback image support
+
+## Tech Stack
+
+- [Vue 3](https://vuejs.org/)
+- [Vue Router](https://router.vuejs.org/)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+- [Axios](https://axios-http.com/)
+- [vue-awesome-paginate](https://www.npmjs.com/package/vue-awesome-paginate)
+
+## Getting Started
+
+1. Clone:
+   `git clone https://github.com/johnmichealacera/dota2-vue-app.git`
+2. Install dependencies:
+   `npm install`
+3. Create `.env` at project root:
+   `VUE_APP_DOTA_BACKEND_API=http://localhost:8000`
+4. Run locally:
+   `npm run serve`
+
+Then open `http://localhost:8080/`.
+
+## Environment Variable
+
+- `VUE_APP_DOTA_BACKEND_API`: Base URL of the backend API.
+
+## Backend
+
+The current backend lives in your separate project and is consumed through REST endpoints. This frontend is kept decoupled so backend implementation can evolve independently (Node.js now, Rust later if you decide to migrate).
+
 ## License
-This project is licensed under the MIT License - see the [LICENSE.md](https://opensource.org/license/mit/) file for details.
 
-## Acknowledgments
-- [Vue.js](https://vuejs.org/v2/guide/) documentation
-- [Tailwind](https://tailwindcss.com/docs) documentation
-- [Axios](https://github.com/axios/axios/blob/master/README.md) documentation
+MIT

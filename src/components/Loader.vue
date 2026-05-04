@@ -40,27 +40,33 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: pulse 1s ease-in-out infinite;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 0.95rem;
+  background: rgba(13, 19, 34, 0.85);
+  animation: pulse 1.2s ease-in-out infinite;
+  min-height: 160px;
 }
 .skeleton-text {
   width: 80%;
-  height: 20px;
-  background-color: #e1e1e1;
-  margin: 10px 0;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(123, 161, 231, 0.2), rgba(196, 218, 255, 0.45), rgba(123, 161, 231, 0.2));
+  margin: 8px 0;
 }
 .home-loader {
-  width: 100vw !important;
-  box-sizing: border-box;
+  width: 100%;
+  grid-column: 1 / -1;
 }
 @keyframes pulse {
   0% {
-    opacity: 1;
+    opacity: 0.55;
   }
   50% {
-    opacity: 0.5;
+    opacity: 1;
   }
   100% {
-    opacity: 1;
+    opacity: 0.55;
   }
 }
 </style>

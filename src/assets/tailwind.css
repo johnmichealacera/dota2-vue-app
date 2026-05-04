@@ -3,3 +3,93 @@
 @tailwind components;
 
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #05070d;
+    --surface: #101629;
+    --surface-strong: #161f36;
+    --text: #e9efff;
+    --text-muted: #9eb0d2;
+    --accent: #68a6ff;
+    --accent-strong: #8fbcff;
+    --border: rgba(160, 190, 255, 0.2);
+    --shadow: 0 24px 80px rgba(4, 9, 20, 0.65);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    font-family: "Manrope", "Segoe UI", sans-serif;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(104, 166, 255, 0.22), transparent 42%),
+      radial-gradient(circle at 85% 5%, rgba(89, 244, 207, 0.14), transparent 35%),
+      radial-gradient(circle at 50% 95%, rgba(142, 104, 255, 0.12), transparent 45%),
+      var(--bg);
+    line-height: 1.45;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Sora", "Manrope", sans-serif;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    border: 1px solid var(--border);
+    background: linear-gradient(160deg, rgba(16, 22, 41, 0.85), rgba(16, 22, 41, 0.5));
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow);
+  }
+
+  .section-shell {
+    width: min(1200px, calc(100% - 2rem));
+    margin: 0 auto;
+  }
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 2rem auto 0;
+  flex-wrap: wrap;
+}
+
+.paginate-buttons {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  background: rgba(12, 17, 30, 0.8);
+  transition: all 180ms ease;
+}
+
+.paginate-buttons:hover {
+  transform: translateY(-1px);
+  color: var(--text);
+  border-color: rgba(143, 188, 255, 0.5);
+}
+
+.active-page {
+  background: linear-gradient(120deg, #478cf6, #6eb4ff);
+  color: #09101f;
+  border-color: transparent;
+}

@@ -62,6 +62,9 @@ module.exports = {
     // TODO: Find a way to read this in an env file
     new webpack.DefinePlugin({
       'process.env.VUE_APP_DOTA_BACKEND_API': JSON.stringify("https://dota2-api-backend.onrender.com"),
+      __VUE_OPTIONS_API__: JSON.stringify(true),
+      __VUE_PROD_DEVTOOLS__: JSON.stringify(false),
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false),
     }), 
     new FileManagerPlugin({
       events: {

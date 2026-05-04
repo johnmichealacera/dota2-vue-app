@@ -13,6 +13,7 @@ import axios from 'axios';
 import { ref, onMounted } from 'vue';
 // import ImageCard from '../components/ImageCard.vue';
 import DotaLoader from '../components/Loader.vue';
+import { buildApiUrl } from '../config/api';
 
 export default {
   name: 'DotaPlayers',
@@ -25,7 +26,7 @@ export default {
     const isLoading = ref(false);
     const fetchData = () => {
       isLoading.value = true;
-      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/pro-players`)
+      axios.get(buildApiUrl('/pro-players'))
       .then(response => {
         // handle response
         proPlayers.value = response.data;

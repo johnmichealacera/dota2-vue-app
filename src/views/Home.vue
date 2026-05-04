@@ -1,10 +1,15 @@
 <template>
-  <div >
-    <h1 class="text-base sm:text-3xl font-bold text-center sm:my-4">Explore the World of Dota Heroes</h1>
-    <div class="grid grid-cols-10 sm:gap-4">
-      <dota-loader :isLoading="isLoading" loaderType="home"/>
+  <section>
+    <div class="hero glass-panel">
+      <p class="eyebrow">Explorer</p>
+      <h1>Discover Dota Heroes with style</h1>
+      <p class="subtitle">Browse hero profiles, stats, and matchup insights in a clean, responsive interface.</p>
+    </div>
+    <div class="card-grid">
+      <dota-loader :isLoading="isLoading" loaderType="home" />
       <ImageCard v-for="hero in heroes" :key="hero.id" :itemData="hero" itemType="hero"/>
     </div>
+    <p v-if="!isLoading && heroes.length === 0" class="empty-state">No heroes available right now. Try refreshing.</p>
     <vue-awesome-paginate
       :total-items="paginationData.totalHeroes"
       :items-per-page="paginationData.pageSize"
@@ -12,7 +17,7 @@
       v-model="currentPage"
       :on-click="onClickHandler"
     />
-  </div>
+  </section>
 </template>
 
 <script>
@@ -20,6 +25,7 @@ import axios from 'axios';
 import { ref, onMounted } from 'vue';
 import ImageCard from '../components/ImageCard.vue';
 import DotaLoader from '../components/Loader.vue';
+import { buildApiUrl } from '../config/api';
 
 export default {
   name: 'DotaHome',
@@ -42,7 +48,7 @@ export default {
     const isLoading = ref(false);
     const fetchData = (page = 1) => {
       isLoading.value = true;
-      axios.get(`${process.env.VUE_APP_DOTA_BACKEND_API}/heroes`, { params: { pageSize: 30, page } })
+      axios.get(buildApiUrl('/heroes'), { params: { pageSize: 30, page } })
       .then(response => {
         heroes.value = response.data?.items;
         paginationData.value = {
@@ -73,29 +79,42 @@ export default {
 }
 </script>
 
-<style>
-  .pagination-container {
-    display: flex;
-    column-gap: 10px;
-  }
-  .paginate-buttons {
-    height: 40px;
-    width: 40px;
-    border-radius: 20px;
-    cursor: pointer;
-    background-color: rgb(242, 242, 242);
-    border: 1px solid rgb(217, 217, 217);
-    color: black;
-  }
-  .paginate-buttons:hover {
-    background-color: #d8d8d8;
-  }
-  .active-page {
-    background-color: #3498db;
-    border: 1px solid #3498db;
-    color: white;
-  }
-  .active-page:hover {
-    background-color: #2988c8;
-  }
+<style scoped>
+.hero {
+  border-radius: 1.25rem;
+  padding: 1.4rem;
+  text-align: left;
+  margin-bottom: 1.25rem;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+  color: var(--accent-strong);
+}
+
+h1 {
+  margin: 0.35rem 0 0.4rem;
+  font-size: clamp(1.4rem, 3vw, 2.25rem);
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  max-width: 42rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 0.95rem;
+}
+
+.empty-state {
+  text-align: center;
+  margin-top: 1rem;
+  color: var(--text-muted);
+}
 </style>

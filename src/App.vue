@@ -1,8 +1,10 @@
 <template>
-  <div>
+  <div id="app-shell">
     <nav-bar />
-    <router-view />
-    <footer-nav class="border-2"/>
+    <main class="section-shell app-main">
+      <router-view />
+    </main>
+    <footer-nav />
   </div>
 </template>
 
@@ -22,11 +24,14 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #63a2e2;
+#app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.app-main {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
 }
 </style>

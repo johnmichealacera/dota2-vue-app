@@ -3,6 +3,7 @@ const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 const FileManagerPlugin = require('filemanager-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
   entry: './src/main.js',
@@ -45,6 +46,11 @@ module.exports = {
       template: './public/index.html'
     }),
     new Dotenv(),
+    new webpack.DefinePlugin({
+      __VUE_OPTIONS_API__: JSON.stringify(true),
+      __VUE_PROD_DEVTOOLS__: JSON.stringify(false),
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false),
+    }),
     new FileManagerPlugin({
       events: {
         onEnd: {
@@ -61,7 +67,15 @@ module.exports = {
     },
     hot: true,
     historyApiFallback: true,
-    liveReload: true
+    liveReload: true,
+    proxy: [
+      {
+        context: ['/api'],
+        target: 'https://dota2-api-backend.onrender.com',
+        changeOrigin: true,
+        pathRewrite: { '^/api': '' },
+      },
+    ],
   },
   stats: {
     logging: 'verbose',
