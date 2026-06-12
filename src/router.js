@@ -3,6 +3,7 @@ import DotaHome from './views/Home.vue';
 import DotaPlayers from './views/Players.vue';
 import DotaTeams from './views/Teams.vue';
 import DotaMatches from './views/Matches.vue';
+import MetaPage from './views/Meta.vue';
 import ItemCard from './components/ItemCard.vue';
 
 const routes = [
@@ -25,6 +26,11 @@ const routes = [
     path: '/matches',
     name: 'DotaMatches',
     component: DotaMatches
+  },
+  {
+    path: '/meta',
+    name: 'MetaPage',
+    component: MetaPage
   },
   {
     path: '/item/:id/:type',

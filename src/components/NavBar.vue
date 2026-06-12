@@ -16,6 +16,7 @@
         <router-link to="/teams" class="nav-link" active-class="is-active">Teams</router-link>
         <router-link to="/players" class="nav-link" active-class="is-active">Players</router-link>
         <router-link to="/matches" class="nav-link nav-link-matches" active-class="is-active">Matches</router-link>
+        <router-link to="/meta" class="nav-link nav-link-meta" active-class="is-active">Meta</router-link>
       </div>
     </nav>
   </header>
@@ -128,6 +129,13 @@ export default defineComponent({ name: 'NavBar' });
   border-color: rgba(56, 189, 248, 0.35);
   background: rgba(56, 189, 248, 0.08);
   box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+.nav-link-meta.is-active {
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.08);
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.2);
 }
 
 @media (max-width: 480px) {
