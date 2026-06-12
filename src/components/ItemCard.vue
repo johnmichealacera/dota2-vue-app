@@ -1,77 +1,150 @@
 <template>
-  <section class="details-wrap">
-    <div v-if="isLoading" class="flex loader">
-      <dota-loader :isLoading="isLoading" class="grow-0"/>
-      <dota-loader :isLoading="isLoading" class="grow"/>
+  <section>
+    <div v-if="isLoading" class="details-wrap">
+      <dota-loader :isLoading="isLoading" loaderType="detail" />
     </div>
-    <div class="main-card glass-panel" v-if="!isLoading && itemType === 'hero'">
-      <img :src="mainItem.img" :alt="mainItem.name" />
-      <h2>{{ mainItem.name }}</h2>
-      <ul>
-        <li class="hidden sm:block">Primary Attribute: {{ mainItem.primaryAttr }}</li>
-        <li class="sm:hidden block">PA: {{ mainItem.primaryAttr }}</li>
-        <li class="hidden sm:block">Attack Type: {{ mainItem.attackType }}</li>
-        <li class="sm:hidden block">AT: {{ mainItem.attackType }}</li>
-        <!-- <li>Roles: {{ mainItem.roles.join(', ') }}</li> -->
-        <li>Health: {{ mainItem.health }}</li>
-        <li>Mana: {{ mainItem.baseMana }}</li>
-        <li>Armor: {{ mainItem.baseArmor }}</li>
-        <li class="hidden sm:block">Magic Resistance: {{ mainItem.baseMr }}%</li>
-        <li class="sm:hidden block">MR: {{ mainItem.baseMr }}%</li>
-        <li class="hidden sm:block">Attack Range: {{ mainItem.attackRange }}</li>
-        <li class="sm:hidden block">AR: {{ mainItem.attackRange }}</li>
-        <li class="hidden sm:block">Attack Speed: {{ mainItem.attackRate }}</li>
-        <li class="sm:hidden block">AS: {{ mainItem.attackRate }}</li>
-        <li class="hidden sm:block">Movement Speed: {{ mainItem.moveSpeed }}</li>
-        <li class="sm:hidden block">MS: {{ mainItem.moveSpeed }}</li>
-      </ul>
-    </div>
-    <div class="main-card glass-panel" v-if="!isLoading && itemType === 'team'">
-      <fallback :imageUrl="mainItem.img" />
-      <h2>{{ mainItem.name }}</h2>
-      <ul>
-        <li class="hidden sm:block">Rating: {{ mainItem.rating }}</li>
-        <li class="sm:hidden block">Rtg: {{ mainItem.rating }}</li>
-        <li>Tag: {{ mainItem.tag }}</li>
-        <li>Wins: {{ mainItem.wins }}</li>
-        <li>Losses: {{ mainItem.losses }}</li>
-        <li class="hidden sm:block">Last Match: {{ mainItem.lastMatchTime }}</li>
-        <li class="sm:hidden block">LM: {{ mainItem.lastMatchTime }}</li>
-      </ul>
-    </div>
-    <div class="matchup-card glass-panel" v-if="!isLoading">
-      <h1>{{ itemType === 'hero' ? 'Hero Matchups' : 'Team Matchups' }}</h1>
-      <div class="matchup-grid">
-        <div v-for="item in itemMatchups" :key="item.id">
-          <div class="matchup-item">
-            <router-link v-if="item" :to="{ name: 'ItemCard', params: { id: item.id, type: 'hero' } }">
-              <fallback :imageUrl="item.img" />
-              <div class="meta">
-                <div class="name">
-                  {{ item.name }}
-                </div>
-                <p>Games: {{ item.gamesPlayed }}</p>
-                <p>Wins: {{ item.wins }}</p>
-                <p>Win rate: {{ item.winRate.toFixed(1) }}%</p>
-              </div>
-            </router-link>
-          </div>
+
+    <div v-if="!isLoading" class="details-wrap">
+
+      <!-- ── Side panel ─────────────────────────────── -->
+      <aside class="side-panel glass-panel">
+        <div class="portrait-wrap">
+          <img v-if="itemType === 'hero'" :src="mainItem.img" :alt="mainItem.name" class="portrait" />
+          <fallback v-else :imageUrl="mainItem.img" />
         </div>
+
+        <h2 class="item-name">{{ mainItem.name }}</h2>
+
+        <template v-if="itemType === 'hero'">
+          <div class="attr-pills">
+            <span class="attr-pill str">STR</span>
+            <span class="attr-pill agi">AGI</span>
+            <span class="attr-pill int">INT</span>
+          </div>
+
+          <div class="divider-rune" style="margin: 1rem 0 0.8rem">Base Stats</div>
+
+          <div class="stats-list">
+            <div class="stat-row">
+              <span class="srow-label">Attack Type</span>
+              <span :class="mainItem.attackType === 'Melee' ? 'badge badge-melee' : 'badge badge-ranged'">
+                {{ mainItem.attackType }}
+              </span>
+            </div>
+            <div class="stat-row">
+              <span class="srow-label">Health</span>
+              <span class="srow-val">{{ mainItem.health }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="srow-label">Mana</span>
+              <span class="srow-val int-col">{{ mainItem.baseMana }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="srow-label">Armor</span>
+              <span class="srow-val">{{ mainItem.baseArmor }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="srow-label">Move Spd</span>
+              <span class="srow-val agi-col">{{ mainItem.moveSpeed }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="srow-label">Atk Range</span>
+              <span class="srow-val">{{ mainItem.attackRange }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="srow-label">Magic Res</span>
+              <span class="srow-val">{{ mainItem.baseMr }}%</span>
+            </div>
+          </div>
+        </template>
+
+        <template v-if="itemType === 'team'">
+          <div class="divider-rune" style="margin: 1rem 0 0.8rem">Team Record</div>
+          <div class="stats-list">
+            <div class="stat-row">
+              <span class="srow-label">Rating</span>
+              <span class="srow-val accent-col">{{ mainItem.rating }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="srow-label">Tag</span>
+              <span class="badge badge-team">{{ mainItem.tag }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="srow-label">Wins</span>
+              <span class="srow-val agi-col">{{ mainItem.wins }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="srow-label">Losses</span>
+              <span class="srow-val crimson-col">{{ mainItem.losses }}</span>
+            </div>
+          </div>
+
+          <!-- win rate bar -->
+          <div style="margin-top:1rem" v-if="mainItem.wins != null">
+            <div class="stat-bar-wrap">
+              <div class="stat-bar-label">
+                <span>Win Rate</span>
+                <span>{{ winRate }}%</span>
+              </div>
+              <div class="stat-bar-track">
+                <div class="stat-bar-fill" :style="{ width: winRate + '%' }"></div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </aside>
+
+      <!-- ── Matchup panel ──────────────────────────── -->
+      <div class="matchup-panel glass-panel">
+        <div class="matchup-header">
+          <h1 class="matchup-title">{{ itemType === 'hero' ? 'Hero Matchups' : 'Team Matchups' }}</h1>
+          <span class="matchup-count" v-if="itemMatchups.length">{{ itemMatchups.length }} shown</span>
+        </div>
+
+        <div class="matchup-grid">
+          <router-link
+            v-for="item in itemMatchups"
+            :key="item.id"
+            :to="{ name: 'ItemCard', params: { id: item.id, type: 'hero' } }"
+            class="matchup-item"
+            :class="getWinRateClass(item.winRate)"
+          >
+            <fallback :imageUrl="item.img" />
+            <div class="m-meta">
+              <div class="m-name">{{ item.name }}</div>
+              <div class="m-wr-bar-wrap">
+                <div class="m-wr-bar-track">
+                  <div
+                    class="m-wr-bar-fill"
+                    :class="getWinRateClass(item.winRate)"
+                    :style="{ width: item.winRate.toFixed(0) + '%' }"
+                  ></div>
+                </div>
+                <span class="m-wr-label" :class="getWinRateClass(item.winRate)">
+                  {{ item.winRate.toFixed(1) }}%
+                </span>
+              </div>
+              <div class="m-games">{{ item.gamesPlayed }} games</div>
+            </div>
+          </router-link>
+        </div>
+
+        <p v-if="itemMatchups.length === 0" class="empty-state">No matchup data found.</p>
       </div>
-      <p v-if="itemMatchups.length === 0" class="empty-state">No matchup data found for this item.</p>
     </div>
+
+    <vue-awesome-paginate
+      :total-items="paginationData.totalTeams"
+      :items-per-page="paginationData.pageSize"
+      :max-pages-shown="5"
+      v-model="currentPage"
+      :on-click="onClickHandler"
+    />
   </section>
-  <vue-awesome-paginate
-    :total-items="paginationData.totalTeams"
-    :items-per-page="paginationData.pageSize"
-    :max-pages-shown="5"
-    v-model="currentPage"
-    :on-click="onClickHandler"
-  />
 </template>
 
 <script>
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 import DotaLoader from './Loader.vue';
@@ -80,186 +153,282 @@ import { buildApiUrl } from '../config/api';
 
 export default defineComponent({
   name: 'ItemCard',
-  components: {
-    DotaLoader,
-    Fallback,
-  },
+  components: { DotaLoader, Fallback },
   setup() {
-    const mainItem = ref([]);
+    const mainItem = ref({});
     const itemMatchups = ref([]);
     const route = useRoute();
     const isLoading = ref(false);
-    const onClickHandler = (page) => {
-      fetchData(page);
-    };
     const currentPage = ref(1);
-    const paginationData = ref({
-      totalTeams: 0,
-      currentPage: 1,
-      pageSize: 10,
-      totalPages: 1
+    const paginationData = ref({ totalTeams: 0, currentPage: 1, pageSize: 10, totalPages: 1 });
+
+    const winRate = computed(() => {
+      const { wins, losses } = mainItem.value;
+      if (wins == null || losses == null) return 0;
+      const total = wins + losses;
+      return total === 0 ? 0 : ((wins / total) * 100).toFixed(1);
     });
+
+    const getWinRateClass = (wr) => {
+      if (wr >= 55) return 'wr-high';
+      if (wr <= 45) return 'wr-low';
+      return 'wr-mid';
+    };
+
     const fetchData = (page) => {
       isLoading.value = true;
-      if (route.params.type === 'hero') {
-        axios.get(buildApiUrl(`/hero/${route.params.id}`))
-        .then(response => {
-          mainItem.value = response.data;
-        })
-        .catch(error => {
-          console.error('error', error);
-        });
+      const type = route.params.type;
+      const id   = route.params.id;
 
-      axios.get(buildApiUrl(`/hero-matchup/${route.params.id}`), { params: { pageSize: 18, page } })
-        .then(response => {
-          itemMatchups.value = response.data?.items;
-          paginationData.value = {
-            totalTeams: response.data?.pagination?.totalItems,
-            currentPage: response.data?.pagination?.currentPage,
-            pageSize: response.data?.pagination?.pageSize,
-            totalPages: response.data?.pagination?.totalPages
-          };
-          isLoading.value = false;
-        })
-        .catch(error => {
-          console.error('error', error);
-        });
-      }
-      else if (route.params.type === 'team') {
-        axios.get(buildApiUrl(`/team/${route.params.id}`))
-        .then(response => {
-          mainItem.value = response.data;
-        })
-        .catch(error => {
-          console.error('error', error);
-        });
-        axios.get(buildApiUrl(`/team-matchup/${route.params.id}`), { params: { pageSize: 18, page } })
-        .then(response => {
-          itemMatchups.value = response.data?.items;
-          paginationData.value = {
-            totalTeams: response.data?.pagination?.totalItems,
-            currentPage: response.data?.pagination?.currentPage,
-            pageSize: response.data?.pagination?.pageSize,
-            totalPages: response.data?.pagination?.totalPages
-          };
-          isLoading.value = false;
-        })
-        .catch(error => {
-          console.error('error', error);
-        });
-      }
-    }
+      const heroDetailReq = type === 'hero'
+        ? axios.get(buildApiUrl(`/hero/${id}`))
+        : axios.get(buildApiUrl(`/team/${id}`));
 
-    watch(() => route.params.id, () => {
-      fetchData(currentPage.value);
-    }, { immediate: true });
+      const matchupReq = type === 'hero'
+        ? axios.get(buildApiUrl(`/hero-matchup/${id}`),  { params: { pageSize: 18, page } })
+        : axios.get(buildApiUrl(`/team-matchup/${id}`),  { params: { pageSize: 18, page } });
+
+      heroDetailReq.then(r => { mainItem.value = r.data; }).catch(console.error);
+      matchupReq.then(r => {
+        itemMatchups.value = r.data?.items;
+        paginationData.value = {
+          totalTeams:  r.data?.pagination?.totalItems,
+          currentPage: r.data?.pagination?.currentPage,
+          pageSize:    r.data?.pagination?.pageSize,
+          totalPages:  r.data?.pagination?.totalPages,
+        };
+        isLoading.value = false;
+      }).catch(console.error);
+    };
+
+    watch(() => route.params.id, () => fetchData(currentPage.value), { immediate: true });
 
     return {
-      mainItem,
-      itemMatchups,
-      isLoading,
+      mainItem, itemMatchups, isLoading,
       itemType: route.params.type,
-      onClickHandler,
-      currentPage,
-      paginationData,
+      onClickHandler: (page) => fetchData(page),
+      currentPage, paginationData, winRate, getWinRateClass,
     };
   }
 });
 </script>
 
 <style>
-.hero-card {
+.details-wrap {
   display: grid;
-  grid-template-columns: minmax(220px, 300px) 1fr;
-  gap: 1rem;
+  grid-template-columns: 260px 1fr;
+  gap: 1.1rem;
   align-items: start;
 }
 
-.details-wrap {
-  display: grid;
-  grid-template-columns: minmax(220px, 300px) 1fr;
-  gap: 1rem;
+/* ── Side panel ─────────────────────── */
+.side-panel {
+  border-radius: 0.85rem;
+  padding: 1.25rem;
+  position: sticky;
+  top: 1rem;
+  animation: fadeUp 0.4s ease both;
 }
 
-.main-card,
-.matchup-card {
-  border-radius: 1rem;
-  padding: 1rem;
+.portrait-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.9rem;
 }
 
-.main-card img {
-  max-width: 120px;
-  border-radius: 0.75rem;
+.portrait {
+  width: 100%;
+  max-width: 190px;
+  border-radius: 0.65rem;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(2, 4, 12, 0.6), 0 0 0 1px rgba(232, 168, 56, 0.08);
 }
 
-.main-card h2 {
-  margin: 0.7rem 0 0.55rem;
-  font-size: 1.1rem;
+.item-name {
+  margin: 0 0 0.6rem;
+  font-size: 1.15rem;
+  text-align: center;
 }
 
-.main-card ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  display: grid;
+.attr-pills {
+  display: flex;
+  justify-content: center;
   gap: 0.35rem;
+  margin-bottom: 0.2rem;
 }
 
-.matchup-card h1 {
-  margin: 0 0 0.9rem;
+.attr-pill {
+  padding: 0.18rem 0.55rem;
+  border-radius: 3px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.attr-pill.str { background: rgba(201,53,53,0.2); border: 1px solid rgba(201,53,53,0.4); color: var(--str); }
+.attr-pill.agi { background: rgba(56,197,122,0.2); border: 1px solid rgba(56,197,122,0.4); color: var(--agi); }
+.attr-pill.int { background: rgba(91,160,240,0.2); border: 1px solid rgba(91,160,240,0.4); color: var(--int); }
+
+.stats-list { display: flex; flex-direction: column; gap: 0.42rem; }
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid rgba(200, 146, 42, 0.06);
+}
+
+.srow-label {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.srow-val {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--text-soft);
+}
+.accent-col  { color: var(--accent-bright); }
+.agi-col     { color: var(--agi); }
+.int-col     { color: var(--int); }
+.crimson-col { color: var(--crimson); }
+
+/* ── Matchup panel ────────────────────── */
+.matchup-panel {
+  border-radius: 0.85rem;
+  padding: 1.25rem;
+  animation: fadeUp 0.4s 0.08s ease both;
+}
+
+.matchup-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+
+.matchup-title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.matchup-count {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: rgba(200,146,42,0.1);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
 }
 
 .matchup-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 0.7rem;
 }
 
 .matchup-item {
   border: 1px solid var(--border);
-  border-radius: 0.8rem;
-  padding: 0.55rem;
-  background: rgba(10, 16, 30, 0.8);
-  transition: transform 170ms ease, border-color 170ms ease;
+  border-radius: 0.65rem;
+  padding: 0.5rem 0.5rem 0.6rem;
+  background: rgba(10, 14, 26, 0.8);
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  display: block;
+  text-decoration: none;
 }
 
 .matchup-item:hover {
-  transform: translateY(-2px);
-  border-color: rgba(143, 188, 255, 0.5);
+  transform: translateY(-3px);
+}
+.matchup-item.wr-high:hover {
+  border-color: rgba(56,197,122,0.5);
+  box-shadow: 0 8px 24px rgba(56,197,122,0.15);
+}
+.matchup-item.wr-low:hover {
+  border-color: rgba(201,53,53,0.5);
+  box-shadow: 0 8px 24px rgba(201,53,53,0.15);
+}
+.matchup-item.wr-mid:hover {
+  border-color: var(--border-strong);
 }
 
-.meta {
-  margin-top: 0.5rem;
+.m-meta { margin-top: 0.4rem; }
+
+.m-name {
+  font-family: "Cinzel", serif;
+  font-size: 0.68rem;
+  font-weight: 600;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+  margin-bottom: 0.4rem;
 }
 
-.name {
+.m-wr-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+}
+
+.m-wr-bar-track {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+
+.m-wr-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.m-wr-bar-fill.wr-high { background: linear-gradient(90deg, #28a06a, #3dd4b8); }
+.m-wr-bar-fill.wr-low  { background: linear-gradient(90deg, #a02828, #e87070); }
+.m-wr-bar-fill.wr-mid  { background: linear-gradient(90deg, #8a7020, var(--accent-bright)); }
+
+.m-wr-label {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.62rem;
   font-weight: 700;
-  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
+.m-wr-label.wr-high { color: var(--agi); }
+.m-wr-label.wr-low  { color: var(--crimson); }
+.m-wr-label.wr-mid  { color: var(--accent-bright); }
 
-.meta p {
-  margin: 0.2rem 0 0;
+.m-games {
+  font-size: 0.6rem;
   color: var(--text-muted);
-  font-size: 0.72rem;
-}
-
-.loader {
-  width: 100%;
-  grid-column: 1 / -1;
+  text-align: center;
+  font-family: "Barlow Condensed", sans-serif;
+  letter-spacing: 0.04em;
 }
 
 .empty-state {
   text-align: center;
   color: var(--text-muted);
-  margin-top: 0.8rem;
+  margin-top: 1rem;
+  font-style: italic;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 860px) {
   .details-wrap {
     grid-template-columns: 1fr;
+  }
+  .side-panel {
+    position: static;
   }
 }
 </style>

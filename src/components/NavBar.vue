@@ -1,90 +1,128 @@
 <template>
-  <header class="section-shell nav-wrap">
+  <header class="nav-outer section-shell">
     <nav class="glass-panel header-nav">
+      <div class="nav-top-line"></div>
       <router-link to="/" class="brand">
-        <span class="brand-icon">D2</span>
-        <span>Dota Mate</span>
+        <span class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" class="brand-svg">
+            <path d="M12 2L3 7v10l9 5 9-5V7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M12 2v20M3 7l9 5 9-5" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="brand-name">Dota<span class="brand-accent">Mate</span></span>
       </router-link>
       <div class="links">
-        <router-link to="/" class="nav-link" active-class="is-active">Heroes</router-link>
+        <router-link to="/" class="nav-link" active-class="is-active" exact>Heroes</router-link>
         <router-link to="/teams" class="nav-link" active-class="is-active">Teams</router-link>
       </div>
     </nav>
   </header>
 </template>
+
 <script>
 import { defineComponent } from 'vue';
-export default defineComponent({
-  name: 'NavBar',
-});
+export default defineComponent({ name: 'NavBar' });
 </script>
+
 <style>
-.nav-wrap {
-  padding-top: 1rem;
+.nav-outer {
+  padding-top: 1.25rem;
+  position: relative;
+  z-index: 10;
 }
 
 .header-nav {
-  border-radius: 1rem;
+  border-radius: 0.65rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.85rem 1rem;
+  padding: 0.8rem 1.1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* thin amber line across the top edge */
+.nav-top-line {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(232, 168, 56, 0.6) 30%,
+    rgba(232, 168, 56, 0.9) 50%,
+    rgba(232, 168, 56, 0.6) 70%,
+    transparent);
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  font-weight: 700;
-  color: var(--text);
+  gap: 0.65rem;
+  text-decoration: none;
 }
 
 .brand-icon {
   width: 2rem;
   height: 2rem;
-  border-radius: 999px;
+  border-radius: 6px;
   display: grid;
   place-items: center;
-  color: #061125;
-  background: linear-gradient(140deg, #58a2ff, #84c0ff);
-  font-size: 0.8rem;
-  font-family: "Sora", sans-serif;
+  background: linear-gradient(140deg, #b87e1e, #e8a838);
+  color: #08090e;
+  box-shadow: 0 0 16px rgba(232, 168, 56, 0.4);
+  flex-shrink: 0;
+}
+
+.brand-svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.brand-name {
+  font-family: "Cinzel", serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  color: var(--text-soft);
+}
+
+.brand-accent {
+  color: var(--accent-bright);
 }
 
 .links {
   display: inline-flex;
-  gap: 0.35rem;
+  gap: 0.25rem;
 }
 
 .nav-link {
+  font-family: "Barlow Condensed", sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text-muted);
   border: 1px solid transparent;
-  border-radius: 999px;
-  padding: 0.5rem 0.9rem;
-  transition: all 180ms ease;
+  border-radius: 4px;
+  padding: 0.45rem 0.85rem;
+  transition: all 160ms ease;
 }
 
 .nav-link:hover {
-  color: var(--text);
+  color: var(--text-soft);
   border-color: var(--border);
-  background: rgba(143, 188, 255, 0.08);
+  background: rgba(200, 146, 42, 0.06);
 }
 
 .is-active {
-  color: var(--text);
-  border-color: rgba(143, 188, 255, 0.35);
-  background: rgba(143, 188, 255, 0.16);
+  color: var(--accent-bright);
+  border-color: var(--border-strong);
+  background: rgba(200, 146, 42, 0.1);
+  box-shadow: 0 0 12px var(--accent-glow);
 }
 
-@media (max-width: 640px) {
-  .header-nav {
-    padding: 0.7rem 0.8rem;
-  }
-
-  .brand {
-    font-size: 0.85rem;
-  }
+@media (max-width: 480px) {
+  .header-nav { padding: 0.65rem 0.8rem; }
+  .brand-name  { font-size: 0.88rem; }
 }
 </style>
