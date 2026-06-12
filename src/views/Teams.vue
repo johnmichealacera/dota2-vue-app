@@ -19,6 +19,8 @@
       </div>
     </div>
 
+    <error-banner v-if="error" :message="error" :on-retry="fetchData" />
+
     <search-bar v-model="searchQuery" placeholder="Search teams…" @update:modelValue="onSearchChange" />
 
     <div class="card-grid">
@@ -53,26 +55,32 @@ import { ref, computed, onMounted } from 'vue';
 import ImageCard from '../components/ImageCard.vue';
 import DotaLoader from '../components/Loader.vue';
 import SearchBar from '../components/SearchBar.vue';
+import ErrorBanner from '../components/ErrorBanner.vue';
 import { buildApiUrl } from '../config/api';
 
 export default {
   name: 'DotaTeams',
-  components: { DotaLoader, ImageCard, SearchBar },
+  components: { DotaLoader, ImageCard, SearchBar, ErrorBanner },
   setup() {
     const allTeams    = ref([]);
     const isLoading   = ref(false);
+    const error       = ref('');
     const searchQuery = ref('');
     const currentPage = ref(1);
     const pageSize    = 30;
 
     const fetchData = () => {
       isLoading.value = true;
+      error.value = '';
       axios.get(buildApiUrl('/pro-teams'), { params: { pageSize: 999, page: 1 } })
         .then(response => {
           allTeams.value  = response.data?.items ?? [];
           isLoading.value = false;
         })
-        .catch(err => console.error(err));
+        .catch(() => {
+          error.value = 'Failed to load teams. The backend may be starting up — please retry in a moment.';
+          isLoading.value = false;
+        });
     };
 
     const filteredTeams = computed(() => {
@@ -95,10 +103,10 @@ export default {
     onMounted(fetchData);
 
     return {
-      allTeams, isLoading, searchQuery,
+      allTeams, isLoading, error, searchQuery,
       filteredTeams, pagedTeams,
       currentPage, pageSize,
-      onSearchChange, onPageChange,
+      fetchData, onSearchChange, onPageChange,
     };
   },
 };

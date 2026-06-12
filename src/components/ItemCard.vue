@@ -9,11 +9,13 @@
       <span class="bc-current">{{ mainItem.name || '…' }}</span>
     </nav>
 
-    <div v-if="isLoading" class="details-wrap">
+    <error-banner v-if="error" :message="error" :on-retry="() => fetchData(currentPage)" />
+
+    <div v-if="isLoading && !error" class="details-wrap">
       <dota-loader :isLoading="isLoading" loaderType="detail" />
     </div>
 
-    <div v-if="!isLoading" class="details-wrap">
+    <div v-if="!isLoading && !error" class="details-wrap">
 
       <!-- ── Side panel ─────────────────────────────── -->
       <aside class="side-panel glass-panel">
@@ -189,18 +191,20 @@ import { useRoute } from 'vue-router';
 import axios from 'axios';
 import DotaLoader from './Loader.vue';
 import Fallback from './Fallback.vue';
+import ErrorBanner from './ErrorBanner.vue';
 import { buildApiUrl } from '../config/api';
 
 export default defineComponent({
   name: 'ItemCard',
-  components: { DotaLoader, Fallback },
+  components: { DotaLoader, Fallback, ErrorBanner },
   setup() {
     const mainItem     = ref({});
     const itemMatchups = ref([]);
     const route        = useRoute();
     const isLoading    = ref(false);
+    const error        = ref('');
     const currentPage  = ref(1);
-    const sortKey      = ref('wr-desc'); // default: best matchups first
+    const sortKey      = ref('wr-desc');
     const paginationData = ref({ totalTeams: 0, currentPage: 1, pageSize: 10, totalPages: 1 });
 
     const sortOptions = [
@@ -242,6 +246,7 @@ export default defineComponent({
 
     const fetchData = (page) => {
       isLoading.value = true;
+      error.value = '';
       const type = route.params.type;
       const id   = route.params.id;
 
@@ -251,7 +256,8 @@ export default defineComponent({
         { params: { pageSize: 18, page } }
       );
 
-      detailReq.then(r  => { mainItem.value = r.data; }).catch(console.error);
+      detailReq.then(r => { mainItem.value = r.data; }).catch(() => {});
+
       matchupReq.then(r => {
         itemMatchups.value = r.data?.items ?? [];
         paginationData.value = {
@@ -261,13 +267,16 @@ export default defineComponent({
           totalPages:  r.data?.pagination?.totalPages ?? 1,
         };
         isLoading.value = false;
-      }).catch(console.error);
+      }).catch(() => {
+        error.value = 'Failed to load detail data. The backend may be starting up — please retry in a moment.';
+        isLoading.value = false;
+      });
     };
 
     watch(() => route.params.id, () => fetchData(currentPage.value), { immediate: true });
 
     return {
-      mainItem, itemMatchups, isLoading,
+      mainItem, itemMatchups, isLoading, error,
       itemType: route.params.type,
       onClickHandler: (page) => fetchData(page),
       currentPage, paginationData,

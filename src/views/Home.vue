@@ -21,6 +21,8 @@
       </div>
     </div>
 
+    <error-banner v-if="error" :message="error" :on-retry="fetchData" />
+
     <search-bar v-model="searchQuery" placeholder="Search heroes…" @update:modelValue="onFilterChange" />
 
     <attribute-filter-tabs
@@ -62,28 +64,33 @@ import ImageCard from '../components/ImageCard.vue';
 import DotaLoader from '../components/Loader.vue';
 import AttributeFilterTabs from '../components/AttributeFilterTabs.vue';
 import SearchBar from '../components/SearchBar.vue';
+import ErrorBanner from '../components/ErrorBanner.vue';
 import { buildApiUrl } from '../config/api';
 
 export default {
   name: 'DotaHome',
-  components: { ImageCard, DotaLoader, AttributeFilterTabs, SearchBar },
+  components: { ImageCard, DotaLoader, AttributeFilterTabs, SearchBar, ErrorBanner },
   setup() {
     const allHeroes    = ref([]);
     const isLoading    = ref(false);
+    const error        = ref('');
     const activeFilter = ref('all');
     const searchQuery  = ref('');
     const currentPage  = ref(1);
     const pageSize     = 30;
 
-    // Fetch all heroes once — ~135 heroes, cached on the backend
     const fetchData = () => {
       isLoading.value = true;
+      error.value = '';
       axios.get(buildApiUrl('/heroes'), { params: { pageSize: 999, page: 1 } })
         .then(response => {
           allHeroes.value = response.data?.items ?? [];
           isLoading.value = false;
         })
-        .catch(err => console.error(err));
+        .catch(() => {
+          error.value = 'Failed to load heroes. The backend may be starting up — please retry in a moment.';
+          isLoading.value = false;
+        });
     };
 
     // Count per attribute for tab badges
@@ -125,10 +132,10 @@ export default {
     onMounted(fetchData);
 
     return {
-      allHeroes, isLoading, activeFilter, searchQuery,
+      allHeroes, isLoading, error, activeFilter, searchQuery,
       attrCounts, filteredHeroes, pagedHeroes,
       currentPage, pageSize,
-      onFilterChange, onPageChange,
+      fetchData, onFilterChange, onPageChange,
     };
   },
 };

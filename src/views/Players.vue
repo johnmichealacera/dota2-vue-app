@@ -20,15 +20,7 @@
       </div>
     </div>
 
-    <!-- Error state -->
-    <div v-if="error" class="error-state glass-panel">
-      <svg viewBox="0 0 24 24" fill="none" class="error-icon">
-        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <p class="error-msg">{{ error }}</p>
-      <button class="retry-btn" @click="fetchData(currentPage)">Retry</button>
-    </div>
+    <error-banner v-if="error" :message="error" :on-retry="() => fetchData(currentPage)" />
 
     <!-- Loading skeleton -->
     <div v-else-if="isLoading" class="card-grid">
@@ -65,11 +57,12 @@ import axios from 'axios';
 import { ref, onMounted } from 'vue';
 import PlayerCard from '../components/PlayerCard.vue';
 import DotaLoader from '../components/Loader.vue';
+import ErrorBanner from '../components/ErrorBanner.vue';
 import { buildApiUrl } from '../config/api';
 
 export default {
   name: 'DotaPlayers',
-  components: { PlayerCard, DotaLoader },
+  components: { PlayerCard, DotaLoader, ErrorBanner },
   setup() {
     const proPlayers = ref([]);
     const isLoading = ref(false);
@@ -185,34 +178,6 @@ h1 {
   grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
   gap: 0.85rem;
 }
-
-.error-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 2.5rem 1.5rem;
-  border-radius: 0.85rem;
-  text-align: center;
-  margin-bottom: 1rem;
-}
-.error-icon { width: 2rem; height: 2rem; color: var(--crimson); }
-.error-msg  { margin: 0; color: var(--text-muted); font-size: 0.88rem; }
-.retry-btn {
-  padding: 0.4rem 1.1rem;
-  border-radius: 4px;
-  border: 1px solid var(--border-strong);
-  background: rgba(200, 146, 42, 0.1);
-  color: var(--accent-bright);
-  font-family: "Barlow Condensed", sans-serif;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 160ms ease;
-}
-.retry-btn:hover { background: rgba(200, 146, 42, 0.2); }
 
 .empty-state {
   text-align: center;
