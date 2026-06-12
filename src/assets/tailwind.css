@@ -133,6 +133,27 @@
     border: 1px solid rgba(232, 168, 56, 0.35);
     color: var(--accent-bright);
   }
+  /* Attribute badges */
+  .badge-str {
+    background: rgba(201, 53, 53, 0.16);
+    border: 1px solid rgba(201, 53, 53, 0.36);
+    color: #e87070;
+  }
+  .badge-agi {
+    background: rgba(56, 197, 122, 0.14);
+    border: 1px solid rgba(56, 197, 122, 0.35);
+    color: #5ddba0;
+  }
+  .badge-int {
+    background: rgba(91, 160, 240, 0.14);
+    border: 1px solid rgba(91, 160, 240, 0.35);
+    color: #7fbeff;
+  }
+  .badge-uni {
+    background: rgba(155, 114, 219, 0.14);
+    border: 1px solid rgba(155, 114, 219, 0.35);
+    color: #c4a8f5;
+  }
 
   .stat-bar-wrap {
     display: flex;

@@ -9,79 +9,121 @@
       <p class="eyebrow">Hero Archive</p>
       <h1>Discover Every Hero</h1>
       <p class="subtitle">Browse hero profiles, base stats, and matchup insights across the full roster.</p>
-      <div class="banner-stats">
-        <span class="bstat"><span class="bstat-val">{{ paginationData.totalHeroes }}</span> Heroes</span>
+      <div class="banner-stats" v-if="!isLoading">
+        <span class="bstat"><span class="bstat-val">{{ allHeroes.length }}</span> Heroes</span>
         <span class="bstat-sep">·</span>
-        <span class="bstat"><span class="bstat-val str-col">STR</span> · <span class="bstat-val agi-col">AGI</span> · <span class="bstat-val int-col">INT</span></span>
+        <span class="bstat">
+          <span class="bstat-val str-col">STR</span>
+          · <span class="bstat-val agi-col">AGI</span>
+          · <span class="bstat-val int-col">INT</span>
+          · <span class="bstat-val uni-col">UNI</span>
+        </span>
       </div>
     </div>
+
+    <attribute-filter-tabs
+      v-model="activeFilter"
+      :counts="attrCounts"
+      @update:modelValue="onFilterChange"
+    />
 
     <div class="card-grid">
       <dota-loader :isLoading="isLoading" loaderType="home" />
       <ImageCard
-        v-for="(hero, i) in heroes"
+        v-for="(hero, i) in pagedHeroes"
         :key="hero.id"
         :itemData="hero"
         itemType="hero"
-        :style="{ animationDelay: `${i * 0.035}s` }"
+        :style="{ animationDelay: `${i * 0.03}s` }"
       />
     </div>
 
-    <p v-if="!isLoading && heroes.length === 0" class="empty-state">No heroes available right now. Try refreshing.</p>
+    <p v-if="!isLoading && pagedHeroes.length === 0" class="empty-state">
+      No heroes match this filter.
+    </p>
 
     <vue-awesome-paginate
-      :total-items="paginationData.totalHeroes"
-      :items-per-page="paginationData.pageSize"
+      v-if="filteredHeroes.length > pageSize"
+      :total-items="filteredHeroes.length"
+      :items-per-page="pageSize"
       :max-pages-shown="5"
       v-model="currentPage"
-      :on-click="onClickHandler"
+      :on-click="onPageChange"
     />
   </section>
 </template>
 
 <script>
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import ImageCard from '../components/ImageCard.vue';
 import DotaLoader from '../components/Loader.vue';
+import AttributeFilterTabs from '../components/AttributeFilterTabs.vue';
 import { buildApiUrl } from '../config/api';
 
 export default {
   name: 'DotaHome',
-  components: { ImageCard, DotaLoader },
+  components: { ImageCard, DotaLoader, AttributeFilterTabs },
   setup() {
-    const currentPage = ref(1);
-    const paginationData = ref({ totalHeroes: 0, currentPage: 1, pageSize: 10, totalPages: 1 });
-    const heroes = ref([]);
-    const isLoading = ref(false);
+    const allHeroes   = ref([]);
+    const isLoading   = ref(false);
+    const activeFilter = ref('all');
+    const currentPage  = ref(1);
+    const pageSize     = 30;
 
-    const fetchData = (page = 1) => {
+    // Fetch all heroes once — ~135 heroes, cached on the backend
+    const fetchData = () => {
       isLoading.value = true;
-      axios.get(buildApiUrl('/heroes'), { params: { pageSize: 30, page } })
+      axios.get(buildApiUrl('/heroes'), { params: { pageSize: 999, page: 1 } })
         .then(response => {
-          heroes.value = response.data?.items;
-          paginationData.value = {
-            totalHeroes: response.data?.pagination?.totalItems,
-            currentPage:  response.data?.pagination?.currentPage,
-            pageSize:     response.data?.pagination?.pageSize,
-            totalPages:   response.data?.pagination?.totalPages,
-          };
+          allHeroes.value = response.data?.items ?? [];
           isLoading.value = false;
         })
         .catch(err => console.error(err));
     };
 
-    onMounted(() => fetchData(currentPage.value));
+    // Count per attribute for tab badges
+    const attrCounts = computed(() => {
+      const counts = { all: allHeroes.value.length, str: 0, agi: 0, int: 0, all_attr: 0 };
+      for (const h of allHeroes.value) {
+        const a = (h.primaryAttr || '').toLowerCase();
+        if (a === 'str') counts.str++;
+        else if (a === 'agi') counts.agi++;
+        else if (a === 'int') counts.int++;
+        else if (a === 'all') counts.all_attr++;
+      }
+      return counts;
+    });
+
+    // Client-side filtered list
+    const filteredHeroes = computed(() => {
+      if (activeFilter.value === 'all') return allHeroes.value;
+      return allHeroes.value.filter(h => {
+        const a = (h.primaryAttr || '').toLowerCase();
+        // backend returns 'all' for universal; our tab key is 'all_attr'
+        return activeFilter.value === 'all_attr' ? a === 'all' : a === activeFilter.value;
+      });
+    });
+
+    // Current page slice
+    const pagedHeroes = computed(() => {
+      const start = (currentPage.value - 1) * pageSize;
+      return filteredHeroes.value.slice(start, start + pageSize);
+    });
+
+    const onFilterChange = () => { currentPage.value = 1; };
+    const onPageChange   = (page) => { currentPage.value = page; };
+
+    onMounted(fetchData);
 
     return {
-      heroes,
-      isLoading,
-      onClickHandler: (page) => fetchData(page),
-      currentPage,
-      paginationData,
+      allHeroes, isLoading, activeFilter,
+      attrCounts, filteredHeroes, pagedHeroes,
+      currentPage, pageSize,
+      onFilterChange, onPageChange,
     };
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -89,7 +131,7 @@ export default {
   border-radius: 0.85rem;
   padding: 1.75rem 1.75rem 1.5rem;
   text-align: left;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   position: relative;
   overflow: hidden;
 }
@@ -106,13 +148,9 @@ export default {
   user-select: none;
 }
 
-.deco-rune {
-  color: rgba(232, 168, 56, 0.12);
-  font-size: 3.5rem;
-  line-height: 1;
-}
-.deco-rune.sm { font-size: 2.2rem; color: rgba(201, 53, 53, 0.1); }
-.deco-rune.xs { font-size: 1.3rem; color: rgba(14, 184, 154, 0.1); }
+.deco-rune      { color: rgba(232, 168, 56, 0.12); font-size: 3.5rem; line-height: 1; }
+.deco-rune.sm   { font-size: 2.2rem; color: rgba(201, 53, 53, 0.1); }
+.deco-rune.xs   { font-size: 1.3rem; color: rgba(14, 184, 154, 0.1); }
 
 .eyebrow {
   margin: 0 0 0.45rem;
@@ -149,12 +187,13 @@ h1 {
   letter-spacing: 0.06em;
   color: var(--text-muted);
 }
-.bstat { display: inline-flex; align-items: center; gap: 0.3rem; }
+.bstat     { display: inline-flex; align-items: center; gap: 0.3rem; }
 .bstat-sep { opacity: 0.4; }
 .bstat-val { font-weight: 700; color: var(--text-soft); }
-.str-col { color: var(--str); }
-.agi-col { color: var(--agi); }
-.int-col { color: var(--int); }
+.str-col   { color: var(--str); }
+.agi-col   { color: var(--agi); }
+.int-col   { color: var(--int); }
+.uni-col   { color: var(--uni); }
 
 .card-grid {
   display: grid;

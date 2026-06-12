@@ -37,20 +37,28 @@ export default {
   },
   computed: {
     attackLabel() {
-      if (this.itemType === 'hero') return this.itemData.attackType || '—';
-      const tag = this.itemData.attackType || this.itemData.tag || '—';
-      return tag;
+      if (this.itemType === 'team') return this.itemData.attackType || this.itemData.tag || '—';
+      const attr = (this.itemData.primaryAttr || '').toLowerCase();
+      const map  = { str: 'Strength', agi: 'Agility', int: 'Intelligence', all: 'Universal' };
+      return map[attr] || this.itemData.attackType || '—';
     },
     attackBadgeClass() {
       if (this.itemType === 'team') return 'badge badge-team';
-      const t = (this.itemData.attackType || '').toLowerCase();
-      return t === 'melee' ? 'badge badge-melee' : 'badge badge-ranged';
+      const attr = (this.itemData.primaryAttr || '').toLowerCase();
+      if (attr === 'str') return 'badge badge-str';
+      if (attr === 'agi') return 'badge badge-agi';
+      if (attr === 'int') return 'badge badge-int';
+      if (attr === 'all') return 'badge badge-uni';
+      return 'badge badge-team';
     },
     glowClass() {
       if (this.itemType === 'team') return 'glow-gold';
-      const t = (this.itemData.attackType || '').toLowerCase();
-      return t === 'melee' ? 'glow-crimson' : 'glow-teal';
-    }
+      const attr = (this.itemData.primaryAttr || '').toLowerCase();
+      if (attr === 'str') return 'glow-crimson';
+      if (attr === 'agi') return 'glow-teal';
+      if (attr === 'int') return 'glow-blue';
+      return 'glow-purple'; // universal
+    },
   }
 };
 </script>
@@ -84,6 +92,14 @@ export default {
 .glow-gold:hover {
   border-color: rgba(232, 168, 56, 0.5);
   box-shadow: 0 16px 48px rgba(232, 168, 56, 0.18), 0 0 0 1px rgba(232, 168, 56, 0.1);
+}
+.glow-blue:hover {
+  border-color: rgba(91, 160, 240, 0.5);
+  box-shadow: 0 16px 48px rgba(91, 160, 240, 0.18), 0 0 0 1px rgba(91, 160, 240, 0.1);
+}
+.glow-purple:hover {
+  border-color: rgba(155, 114, 219, 0.5);
+  box-shadow: 0 16px 48px rgba(155, 114, 219, 0.18), 0 0 0 1px rgba(155, 114, 219, 0.1);
 }
 
 .media-wrap {
