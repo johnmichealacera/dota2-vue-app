@@ -14,6 +14,7 @@
       <div class="links">
         <router-link to="/" class="nav-link" active-class="is-active" exact>Heroes</router-link>
         <router-link to="/teams" class="nav-link" active-class="is-active">Teams</router-link>
+        <router-link to="/players" class="nav-link" active-class="is-active">Players</router-link>
       </div>
     </nav>
   </header>

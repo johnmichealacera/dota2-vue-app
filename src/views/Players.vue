@@ -1,51 +1,223 @@
 <template>
-  <div>
-    <h1 class="text-base sm:text-3xl font-bold text-center sm:my-4">Explore the World of Dota Pro Players</h1>
-    <div class="grid grid-cols-10 sm:gap-4">
-      <dota-loader :isLoading="isLoading" loaderType="home"/>
-      <!-- <ImageCard v-for="hero in heroes" :key="hero.id" :heroData="hero"/> -->
+  <section>
+    <div class="page-banner glass-panel">
+      <div class="banner-deco" aria-hidden="true">
+        <span class="deco-rune">⬡</span>
+        <span class="deco-rune sm">◆</span>
+        <span class="deco-rune xs">⬡</span>
+      </div>
+      <p class="eyebrow">Pro Circuit</p>
+      <h1>Professional Players</h1>
+      <p class="subtitle">The world's top Dota 2 players — track their teams, roles, and countries.</p>
+      <div class="banner-stats" v-if="!isLoading && !error">
+        <span class="bstat"><span class="bstat-val">{{ paginationData.totalPlayers }}</span> Players</span>
+        <span class="bstat-sep">·</span>
+        <span class="bstat">
+          <span class="bstat-val core-col">Core</span>
+          &amp;
+          <span class="bstat-val supp-col">Support</span>
+        </span>
+      </div>
     </div>
-  </div>
+
+    <!-- Error state -->
+    <div v-if="error" class="error-state glass-panel">
+      <svg viewBox="0 0 24 24" fill="none" class="error-icon">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <p class="error-msg">{{ error }}</p>
+      <button class="retry-btn" @click="fetchData(currentPage)">Retry</button>
+    </div>
+
+    <!-- Loading skeleton -->
+    <div v-else-if="isLoading" class="card-grid">
+      <dota-loader :isLoading="isLoading" loaderType="home" />
+    </div>
+
+    <!-- Players grid -->
+    <div v-else class="card-grid">
+      <PlayerCard
+        v-for="(player, i) in proPlayers"
+        :key="player.accountId || i"
+        :player="player"
+        :style="{ animationDelay: `${i * 0.025}s` }"
+      />
+    </div>
+
+    <p v-if="!isLoading && !error && proPlayers.length === 0" class="empty-state">
+      No pro player data available right now.
+    </p>
+
+    <vue-awesome-paginate
+      v-if="!error && paginationData.totalPlayers > 0"
+      :total-items="paginationData.totalPlayers"
+      :items-per-page="paginationData.pageSize"
+      :max-pages-shown="5"
+      v-model="currentPage"
+      :on-click="onClickHandler"
+    />
+  </section>
 </template>
 
 <script>
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
-// import ImageCard from '../components/ImageCard.vue';
+import PlayerCard from '../components/PlayerCard.vue';
 import DotaLoader from '../components/Loader.vue';
 import { buildApiUrl } from '../config/api';
 
 export default {
   name: 'DotaPlayers',
-  components: {
-    // ImageCard,
-    DotaLoader,
-  },
+  components: { PlayerCard, DotaLoader },
   setup() {
     const proPlayers = ref([]);
     const isLoading = ref(false);
-    const fetchData = () => {
-      isLoading.value = true;
-      axios.get(buildApiUrl('/pro-players'))
-      .then(response => {
-        // handle response
-        proPlayers.value = response.data;
-        isLoading.value = false;
-      })
-      .catch(error => {
-        // handle error
-        console.log('error', error);
-      });
-    }
-    
-    onMounted(() => {
-      fetchData();
-    })
+    const error = ref(null);
+    const currentPage = ref(1);
+    const paginationData = ref({
+      totalPlayers: 0,
+      currentPage: 1,
+      pageSize: 30,
+      totalPages: 1,
+    });
 
-    return {
-      proPlayers,
-      isLoading,
+    const fetchData = (page = 1) => {
+      isLoading.value = true;
+      error.value = null;
+      axios.get(buildApiUrl('/pro-players'), { params: { pageSize: 30, page } })
+        .then(response => {
+          const data = response.data;
+          proPlayers.value = data?.items ?? [];
+          paginationData.value = {
+            totalPlayers: data?.pagination?.totalItems ?? 0,
+            currentPage:  data?.pagination?.currentPage ?? 1,
+            pageSize:     data?.pagination?.pageSize ?? 30,
+            totalPages:   data?.pagination?.totalPages ?? 1,
+          };
+          isLoading.value = false;
+        })
+        .catch(err => {
+          console.error(err);
+          error.value = 'Could not load pro players. Check your connection or backend.';
+          isLoading.value = false;
+        });
     };
-  }
-}
+
+    const onClickHandler = (page) => fetchData(page);
+
+    onMounted(() => fetchData(1));
+
+    return { proPlayers, isLoading, error, currentPage, paginationData, fetchData, onClickHandler };
+  },
+};
 </script>
+
+<style scoped>
+.page-banner {
+  border-radius: 0.85rem;
+  padding: 1.75rem 1.75rem 1.5rem;
+  text-align: left;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-deco {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.deco-rune      { color: rgba(232, 168, 56, 0.12); font-size: 3.5rem; line-height: 1; }
+.deco-rune.sm   { font-size: 2.2rem; color: rgba(155, 114, 219, 0.1); }
+.deco-rune.xs   { font-size: 1.3rem; color: rgba(14, 184, 154, 0.1); }
+
+.eyebrow {
+  margin: 0 0 0.45rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.68rem;
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 600;
+  color: #9b72db;
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+  background: linear-gradient(120deg, #ede8d8, #9b72db 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  margin: 0 0 0.9rem;
+  color: var(--text-muted);
+  max-width: 38rem;
+  font-size: 0.9rem;
+}
+
+.banner-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.bstat     { display: inline-flex; align-items: center; gap: 0.3rem; }
+.bstat-sep { opacity: 0.4; }
+.bstat-val { font-weight: 700; }
+.core-col  { color: var(--crimson); }
+.supp-col  { color: var(--teal); }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 0.85rem;
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 1.5rem;
+  border-radius: 0.85rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.error-icon { width: 2rem; height: 2rem; color: var(--crimson); }
+.error-msg  { margin: 0; color: var(--text-muted); font-size: 0.88rem; }
+.retry-btn {
+  padding: 0.4rem 1.1rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-strong);
+  background: rgba(200, 146, 42, 0.1);
+  color: var(--accent-bright);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+.retry-btn:hover { background: rgba(200, 146, 42, 0.2); }
+
+.empty-state {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+</style>
