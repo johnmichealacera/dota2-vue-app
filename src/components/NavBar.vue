@@ -28,7 +28,7 @@ export default defineComponent({ name: 'NavBar' });
 
 <style>
 .nav-outer {
-  padding-top: 1.25rem;
+  padding-top: 0.75rem;
   position: relative;
   z-index: 10;
 }
@@ -38,7 +38,7 @@ export default defineComponent({ name: 'NavBar' });
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.8rem 1.1rem;
+  padding: 0.5rem 1rem;
   position: relative;
   overflow: hidden;
 }
@@ -100,13 +100,13 @@ export default defineComponent({ name: 'NavBar' });
 .nav-link {
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
   border: 1px solid transparent;
   border-radius: 4px;
-  padding: 0.45rem 0.85rem;
+  padding: 0.3rem 0.7rem;
   transition: all 160ms ease;
 }
 

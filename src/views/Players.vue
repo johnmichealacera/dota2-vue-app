@@ -71,21 +71,21 @@ export default {
     const paginationData = ref({
       totalPlayers: 0,
       currentPage: 1,
-      pageSize: 30,
+      pageSize: 24,
       totalPages: 1,
     });
 
     const fetchData = (page = 1) => {
       isLoading.value = true;
       error.value = null;
-      axios.get(buildApiUrl('/pro-players'), { params: { pageSize: 30, page } })
+      axios.get(buildApiUrl('/pro-players'), { params: { pageSize: 24, page } })
         .then(response => {
           const data = response.data;
           proPlayers.value = data?.items ?? [];
           paginationData.value = {
             totalPlayers: data?.pagination?.totalItems ?? 0,
             currentPage:  data?.pagination?.currentPage ?? 1,
-            pageSize:     data?.pagination?.pageSize ?? 30,
+            pageSize:     data?.pagination?.pageSize ?? 24,
             totalPages:   data?.pagination?.totalPages ?? 1,
           };
           isLoading.value = false;
@@ -109,9 +109,9 @@ export default {
 <style scoped>
 .page-banner {
   border-radius: 0.85rem;
-  padding: 1.75rem 1.75rem 1.5rem;
+  padding: 0.7rem 1.1rem 0.6rem;
   text-align: left;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   position: relative;
   overflow: hidden;
 }
@@ -133,18 +133,18 @@ export default {
 .deco-rune.xs   { font-size: 1.3rem; color: rgba(14, 184, 154, 0.1); }
 
 .eyebrow {
-  margin: 0 0 0.45rem;
+  margin: 0 0 0.15rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  font-size: 0.68rem;
+  font-size: 0.58rem;
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 600;
   color: #9b72db;
 }
 
 h1 {
-  margin: 0 0 0.5rem;
-  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+  margin: 0 0 0.2rem;
+  font-size: clamp(1.05rem, 2vw, 1.5rem);
   background: linear-gradient(120deg, #ede8d8, #9b72db 90%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -152,10 +152,10 @@ h1 {
 }
 
 .subtitle {
-  margin: 0 0 0.9rem;
+  margin: 0 0 0.35rem;
   color: var(--text-muted);
   max-width: 38rem;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
 }
 
 .banner-stats {

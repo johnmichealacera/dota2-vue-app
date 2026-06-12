@@ -31,7 +31,7 @@ export default {
 }
 
 .app-main {
-  padding-top: 1.5rem;
+  padding-top: 0.85rem;
   padding-bottom: 1.5rem;
 }
 </style>

@@ -77,7 +77,7 @@ export default {
     const activeFilter = ref('all');
     const searchQuery  = ref('');
     const currentPage  = ref(1);
-    const pageSize     = 30;
+    const pageSize     = 24;
 
     const fetchData = () => {
       isLoading.value = true;
@@ -144,9 +144,9 @@ export default {
 <style scoped>
 .page-banner {
   border-radius: 0.85rem;
-  padding: 1.75rem 1.75rem 1.5rem;
+  padding: 0.7rem 1.1rem 0.6rem;
   text-align: left;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
   position: relative;
   overflow: hidden;
 }
@@ -168,18 +168,18 @@ export default {
 .deco-rune.xs   { font-size: 1.3rem; color: rgba(14, 184, 154, 0.1); }
 
 .eyebrow {
-  margin: 0 0 0.45rem;
+  margin: 0 0 0.15rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  font-size: 0.68rem;
+  font-size: 0.58rem;
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 600;
   color: var(--accent-bright);
 }
 
 h1 {
-  margin: 0 0 0.5rem;
-  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+  margin: 0 0 0.2rem;
+  font-size: clamp(1.05rem, 2vw, 1.5rem);
   background: linear-gradient(120deg, #ede8d8, #e8a838 80%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -187,10 +187,10 @@ h1 {
 }
 
 .subtitle {
-  margin: 0 0 0.9rem;
+  margin: 0 0 0.35rem;
   color: var(--text-muted);
   max-width: 38rem;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
 }
 
 .banner-stats {
