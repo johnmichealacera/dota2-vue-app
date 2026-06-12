@@ -15,6 +15,7 @@
         <router-link to="/" class="nav-link" active-class="is-active" exact>Heroes</router-link>
         <router-link to="/teams" class="nav-link" active-class="is-active">Teams</router-link>
         <router-link to="/players" class="nav-link" active-class="is-active">Players</router-link>
+        <router-link to="/matches" class="nav-link nav-link-matches" active-class="is-active">Matches</router-link>
       </div>
     </nav>
   </header>
@@ -120,6 +121,13 @@ export default defineComponent({ name: 'NavBar' });
   border-color: var(--border-strong);
   background: rgba(200, 146, 42, 0.1);
   box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.nav-link-matches.is-active {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.08);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
 }
 
 @media (max-width: 480px) {

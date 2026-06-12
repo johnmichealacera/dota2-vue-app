@@ -36,6 +36,22 @@
             </span>
           </div>
 
+          <!-- Pro circuit stats strip -->
+          <div class="hero-stats-strip" v-if="heroStat">
+            <div class="hs-box" :class="winRateClass">
+              <span class="hs-label">Pro Win Rate</span>
+              <span class="hs-val">{{ heroStat.winRate.toFixed(1) }}%</span>
+            </div>
+            <div class="hs-box">
+              <span class="hs-label">Pro Picks</span>
+              <span class="hs-val">{{ heroStat.totalPicks }}</span>
+            </div>
+            <div class="hs-box">
+              <span class="hs-label">Pro Bans</span>
+              <span class="hs-val ban">{{ heroStat.totalBans }}</span>
+            </div>
+          </div>
+
           <!-- Role tags -->
           <div class="role-tags" v-if="mainItem.roles && mainItem.roles.length">
             <span v-for="role in mainItem.roles" :key="role" class="role-tag">{{ role }}</span>
@@ -200,6 +216,7 @@ export default defineComponent({
   setup() {
     const mainItem     = ref({});
     const itemMatchups = ref([]);
+    const heroStat     = ref(null);
     const route        = useRoute();
     const isLoading    = ref(false);
     const error        = ref('');
@@ -212,6 +229,19 @@ export default defineComponent({
       { key: 'wr-asc',     label: 'Worst' },
       { key: 'games-desc', label: 'Most Played' },
     ];
+
+    const winRateClass = computed(() => {
+      const wr = heroStat.value?.winRate ?? 50;
+      if (wr >= 52) return 'wr-good';
+      if (wr <= 48) return 'wr-bad';
+      return 'wr-neutral';
+    });
+
+    const formatCount = (n) => {
+      if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+      if (n >= 1_000)     return Math.round(n / 1_000) + 'K';
+      return String(n);
+    };
 
     const winRate = computed(() => {
       const { wins, losses } = mainItem.value;
@@ -258,6 +288,12 @@ export default defineComponent({
 
       detailReq.then(r => { mainItem.value = r.data; }).catch(() => {});
 
+      if (type === 'hero') {
+        axios.get(buildApiUrl('/hero-stats'))
+          .then(r => { heroStat.value = r.data?.[id] ?? null; })
+          .catch(() => {});
+      }
+
       matchupReq.then(r => {
         itemMatchups.value = r.data?.items ?? [];
         paginationData.value = {
@@ -276,7 +312,8 @@ export default defineComponent({
     watch(() => route.params.id, () => fetchData(currentPage.value), { immediate: true });
 
     return {
-      mainItem, itemMatchups, isLoading, error,
+      mainItem, itemMatchups, heroStat, isLoading, error,
+      winRateClass, formatCount,
       itemType: route.params.type,
       onClickHandler: (page) => fetchData(page),
       currentPage, paginationData,
@@ -369,6 +406,44 @@ export default defineComponent({
 .attr-pill.uni  { background: rgba(155,114,219,0.18); border: 1px solid rgba(155,114,219,0.38); color: var(--uni); }
 .attr-pill.atk.melee  { background: rgba(201,53,53,0.12); border: 1px solid rgba(201,53,53,0.28); color: #e87070; }
 .attr-pill.atk.ranged { background: rgba(14,184,154,0.12); border: 1px solid rgba(14,184,154,0.28); color: #3dd4b8; }
+
+/* Hero stats strip */
+.hero-stats-strip {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0.25rem;
+}
+.hs-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.12rem;
+  padding: 0.4rem 0.25rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(6,8,15,0.4);
+}
+.hs-label {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.hs-val {
+  font-family: "Cinzel", serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-soft);
+}
+.hs-val.ban { color: var(--crimson); opacity: 0.8; }
+.hs-box.wr-good  { border-color: rgba(56,197,122,0.25); background: rgba(56,197,122,0.06); }
+.hs-box.wr-good  .hs-val { color: var(--agi); }
+.hs-box.wr-bad   { border-color: rgba(201,53,53,0.25);  background: rgba(201,53,53,0.06); }
+.hs-box.wr-bad   .hs-val { color: var(--crimson); }
+.hs-box.wr-neutral .hs-val { color: var(--accent-bright); }
 
 /* Role tags */
 .role-tags {
