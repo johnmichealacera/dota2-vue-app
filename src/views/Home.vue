@@ -31,6 +31,17 @@
       @update:modelValue="onFilterChange"
     />
 
+    <div class="sort-bar">
+      <span class="sort-label">Sort</span>
+      <button
+        v-for="opt in sortOpts"
+        :key="opt.key"
+        class="sort-btn"
+        :class="{ 'is-active': sortKey === opt.key }"
+        @click="onSortChange(opt.key)"
+      >{{ opt.label }}</button>
+    </div>
+
     <div class="card-grid">
       <dota-loader :isLoading="isLoading" loaderType="home" />
       <ImageCard
@@ -47,8 +58,8 @@
     </p>
 
     <vue-awesome-paginate
-      v-if="filteredHeroes.length > pageSize"
-      :total-items="filteredHeroes.length"
+      v-if="sortedFilteredHeroes.length > pageSize"
+      :total-items="sortedFilteredHeroes.length"
       :items-per-page="pageSize"
       :max-pages-shown="5"
       v-model="currentPage"
@@ -72,28 +83,38 @@ export default {
   components: { ImageCard, DotaLoader, AttributeFilterTabs, SearchBar, ErrorBanner },
   setup() {
     const allHeroes    = ref([]);
+    const heroStats    = ref({});
     const isLoading    = ref(false);
     const error        = ref('');
     const activeFilter = ref('all');
     const searchQuery  = ref('');
     const currentPage  = ref(1);
+    const sortKey      = ref('alpha');
     const pageSize     = 24;
+
+    const sortOpts = [
+      { key: 'alpha',    label: 'A – Z' },
+      { key: 'attr',     label: 'Attribute' },
+      { key: 'winRate',  label: 'Win Rate' },
+      { key: 'pickRate', label: 'Pick Rate' },
+    ];
 
     const fetchData = () => {
       isLoading.value = true;
       error.value = '';
-      axios.get(buildApiUrl('/heroes'), { params: { pageSize: 999, page: 1 } })
-        .then(response => {
-          allHeroes.value = response.data?.items ?? [];
-          isLoading.value = false;
-        })
-        .catch(() => {
-          error.value = 'Failed to load heroes. The backend may be starting up — please retry in a moment.';
-          isLoading.value = false;
-        });
+      Promise.all([
+        axios.get(buildApiUrl('/heroes'),     { params: { pageSize: 999, page: 1 } }),
+        axios.get(buildApiUrl('/hero-stats')),
+      ]).then(([heroRes, statRes]) => {
+        allHeroes.value  = heroRes.data?.items ?? [];
+        heroStats.value  = statRes.data ?? {};
+        isLoading.value  = false;
+      }).catch(() => {
+        error.value = 'Failed to load heroes. The backend may be starting up — please retry in a moment.';
+        isLoading.value = false;
+      });
     };
 
-    // Count per attribute for tab badges
     const attrCounts = computed(() => {
       const counts = { all: allHeroes.value.length, str: 0, agi: 0, int: 0, all_attr: 0 };
       for (const h of allHeroes.value) {
@@ -106,7 +127,6 @@ export default {
       return counts;
     });
 
-    // Client-side filtered list — attr tab + search query both apply
     const filteredHeroes = computed(() => {
       const q    = searchQuery.value.trim().toLowerCase();
       const attr = activeFilter.value;
@@ -120,22 +140,44 @@ export default {
       });
     });
 
-    // Current page slice
+    const attrOrder = { str: 0, agi: 1, int: 2, all: 3 };
+
+    const sortedFilteredHeroes = computed(() => {
+      const list  = [...filteredHeroes.value];
+      const stats = heroStats.value;
+      switch (sortKey.value) {
+        case 'winRate':
+          return list.sort((a, b) =>
+            (stats[b.id]?.winRate  ?? 0) - (stats[a.id]?.winRate  ?? 0));
+        case 'pickRate':
+          return list.sort((a, b) =>
+            (stats[b.id]?.totalPicks ?? 0) - (stats[a.id]?.totalPicks ?? 0));
+        case 'attr':
+          return list.sort((a, b) =>
+            (attrOrder[(a.primaryAttr || '').toLowerCase()] ?? 4) -
+            (attrOrder[(b.primaryAttr || '').toLowerCase()] ?? 4));
+        default:
+          return list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      }
+    });
+
     const pagedHeroes = computed(() => {
       const start = (currentPage.value - 1) * pageSize;
-      return filteredHeroes.value.slice(start, start + pageSize);
+      return sortedFilteredHeroes.value.slice(start, start + pageSize);
     });
 
     const onFilterChange = () => { currentPage.value = 1; };
+    const onSortChange   = (key) => { sortKey.value = key; currentPage.value = 1; };
     const onPageChange   = (page) => { currentPage.value = page; };
 
     onMounted(fetchData);
 
     return {
       allHeroes, isLoading, error, activeFilter, searchQuery,
-      attrCounts, filteredHeroes, pagedHeroes,
+      attrCounts, filteredHeroes, sortedFilteredHeroes, pagedHeroes,
+      sortKey, sortOpts,
       currentPage, pageSize,
-      fetchData, onFilterChange, onPageChange,
+      fetchData, onFilterChange, onSortChange, onPageChange,
     };
   },
 };
@@ -214,6 +256,50 @@ h1 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
   gap: 0.85rem;
+}
+
+.sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.sort-label {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-right: 0.15rem;
+}
+
+.sort-btn {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: rgba(12, 16, 34, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.22rem 0.6rem;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+
+.sort-btn:hover {
+  color: var(--text-soft);
+  border-color: var(--border-strong);
+}
+
+.sort-btn.is-active {
+  color: var(--accent-bright);
+  border-color: var(--border-strong);
+  background: rgba(200, 146, 42, 0.1);
+  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .empty-state {
