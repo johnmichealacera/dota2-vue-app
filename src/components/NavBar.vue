@@ -12,11 +12,11 @@
         <span class="brand-name">Dota<span class="brand-accent">Mate</span></span>
       </router-link>
       <div class="links">
+        <router-link to="/meta" class="nav-link nav-link-meta" active-class="is-active">Meta</router-link>
         <router-link to="/" class="nav-link" active-class="is-active" exact>Heroes</router-link>
         <router-link to="/teams" class="nav-link" active-class="is-active">Teams</router-link>
-        <router-link to="/players" class="nav-link" active-class="is-active">Players</router-link>
         <router-link to="/matches" class="nav-link nav-link-matches" active-class="is-active">Matches</router-link>
-        <router-link to="/meta" class="nav-link nav-link-meta" active-class="is-active">Meta</router-link>
+        <router-link to="/players" class="nav-link" active-class="is-active">Players</router-link>
       </div>
     </nav>
   </header>
