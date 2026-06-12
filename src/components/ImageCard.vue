@@ -22,6 +22,21 @@
     <div class="meta">
       <h3>{{ itemData.name }}</h3>
       <span :class="attackBadgeClass">{{ attackLabel }}</span>
+      <!-- Permanent stat strip — only shown on touch/mobile where hover is unavailable -->
+      <div class="mobile-stats">
+        <span class="ms-chip str">
+          <span class="ms-label">{{ itemType === 'hero' ? 'STR' : 'RTG' }}</span>
+          <span class="ms-val">{{ mobileFirst }}</span>
+        </span>
+        <span class="ms-chip agi">
+          <span class="ms-label">{{ itemType === 'hero' ? 'AGI' : 'WIN' }}</span>
+          <span class="ms-val">{{ itemData.hoverSecond }}</span>
+        </span>
+        <span class="ms-chip int">
+          <span class="ms-label">{{ itemType === 'hero' ? 'INT' : 'LSS' }}</span>
+          <span class="ms-val">{{ itemData.hoverThird }}</span>
+        </span>
+      </div>
     </div>
   </router-link>
 </template>
@@ -36,6 +51,11 @@ export default {
     itemData: Object,
   },
   computed: {
+    mobileFirst() {
+      const v = this.itemData.hoverFirst;
+      // Team rating is a float — round it so it fits the narrow chip
+      return this.itemType === 'team' ? Math.round(v) : v;
+    },
     attackLabel() {
       if (this.itemType === 'team') return this.itemData.attackType || this.itemData.tag || '—';
       const attr = (this.itemData.primaryAttr || '').toLowerCase();
@@ -185,4 +205,35 @@ h3 {
 @media (min-width: 640px) {
   h3 { font-size: 0.8rem; }
 }
+
+/* ── Mobile stat strip ───────────────────── */
+.mobile-stats {
+  display: none; /* hidden on desktop — hover overlay handles it there */
+  justify-content: center;
+  gap: 0.22rem;
+  margin-top: 0.38rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .mobile-stats { display: flex; }
+}
+
+.ms-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+  padding: 0.14rem 0.32rem;
+  border-radius: 3px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.ms-chip.str { background: rgba(201,53,53,0.16);  color: #e87070; }
+.ms-chip.agi { background: rgba(56,197,122,0.16); color: #5ddba0; }
+.ms-chip.int { background: rgba(91,160,240,0.16); color: #7fbeff; }
+
+.ms-label { opacity: 0.7; }
+.ms-val   { font-weight: 700; }
 </style>
