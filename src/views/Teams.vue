@@ -9,79 +9,99 @@
       <p class="eyebrow">Pro Circuit</p>
       <h1>Professional Teams</h1>
       <p class="subtitle">Track ratings, win/loss records, and recent match history for top competing organisations.</p>
-      <div class="banner-stats">
-        <span class="bstat"><span class="bstat-val">{{ paginationData.totalTeams }}</span> Teams</span>
+      <div class="banner-stats" v-if="!isLoading">
+        <span class="bstat">
+          <span class="bstat-val">{{ filteredTeams.length }}</span>
+          {{ searchQuery ? 'results' : 'Teams' }}
+        </span>
         <span class="bstat-sep">·</span>
         <span class="bstat">Live Standings</span>
       </div>
     </div>
 
+    <search-bar v-model="searchQuery" placeholder="Search teams…" @update:modelValue="onSearchChange" />
+
     <div class="card-grid">
       <dota-loader :isLoading="isLoading" loaderType="home" />
       <ImageCard
-        v-for="(team, i) in proTeams"
+        v-for="(team, i) in pagedTeams"
         :key="team.id"
         :itemData="team"
         itemType="team"
-        :style="{ animationDelay: `${i * 0.035}s` }"
+        :style="{ animationDelay: `${i * 0.03}s` }"
       />
     </div>
 
-    <p v-if="!isLoading && proTeams.length === 0" class="empty-state">No teams found. Try again in a moment.</p>
+    <p v-if="!isLoading && pagedTeams.length === 0" class="empty-state">
+      No teams match your search.
+    </p>
 
     <vue-awesome-paginate
-      :total-items="paginationData.totalTeams"
-      :items-per-page="paginationData.pageSize"
+      v-if="filteredTeams.length > pageSize"
+      :total-items="filteredTeams.length"
+      :items-per-page="pageSize"
       :max-pages-shown="5"
       v-model="currentPage"
-      :on-click="onClickHandler"
+      :on-click="onPageChange"
     />
   </section>
 </template>
 
 <script>
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import ImageCard from '../components/ImageCard.vue';
 import DotaLoader from '../components/Loader.vue';
+import SearchBar from '../components/SearchBar.vue';
 import { buildApiUrl } from '../config/api';
 
 export default {
   name: 'DotaTeams',
-  components: { DotaLoader, ImageCard },
+  components: { DotaLoader, ImageCard, SearchBar },
   setup() {
-    const proTeams = ref([]);
-    const isLoading = ref(false);
+    const allTeams    = ref([]);
+    const isLoading   = ref(false);
+    const searchQuery = ref('');
     const currentPage = ref(1);
-    const paginationData = ref({ totalTeams: 0, currentPage: 1, pageSize: 10, totalPages: 1 });
+    const pageSize    = 30;
 
-    const fetchData = (page = 1) => {
+    const fetchData = () => {
       isLoading.value = true;
-      axios.get(buildApiUrl('/pro-teams'), { params: { pageSize: 30, page } })
+      axios.get(buildApiUrl('/pro-teams'), { params: { pageSize: 999, page: 1 } })
         .then(response => {
-          proTeams.value = response.data?.items;
-          paginationData.value = {
-            totalTeams:  response.data?.pagination?.totalItems,
-            currentPage: response.data?.pagination?.currentPage,
-            pageSize:    response.data?.pagination?.pageSize,
-            totalPages:  response.data?.pagination?.totalPages,
-          };
+          allTeams.value  = response.data?.items ?? [];
           isLoading.value = false;
         })
         .catch(err => console.error(err));
     };
 
-    onMounted(() => fetchData(currentPage.value));
+    const filteredTeams = computed(() => {
+      const q = searchQuery.value.trim().toLowerCase();
+      if (!q) return allTeams.value;
+      return allTeams.value.filter(t =>
+        (t.name || '').toLowerCase().includes(q) ||
+        (t.tag  || '').toLowerCase().includes(q)
+      );
+    });
+
+    const pagedTeams = computed(() => {
+      const start = (currentPage.value - 1) * pageSize;
+      return filteredTeams.value.slice(start, start + pageSize);
+    });
+
+    const onSearchChange = () => { currentPage.value = 1; };
+    const onPageChange   = (page) => { currentPage.value = page; };
+
+    onMounted(fetchData);
 
     return {
-      proTeams,
-      isLoading,
-      onClickHandler: (page) => fetchData(page),
-      currentPage,
-      paginationData,
+      allTeams, isLoading, searchQuery,
+      filteredTeams, pagedTeams,
+      currentPage, pageSize,
+      onSearchChange, onPageChange,
     };
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -89,7 +109,7 @@ export default {
   border-radius: 0.85rem;
   padding: 1.75rem 1.75rem 1.5rem;
   text-align: left;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   position: relative;
   overflow: hidden;
 }

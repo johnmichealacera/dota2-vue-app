@@ -21,6 +21,8 @@
       </div>
     </div>
 
+    <search-bar v-model="searchQuery" placeholder="Search heroes…" @update:modelValue="onFilterChange" />
+
     <attribute-filter-tabs
       v-model="activeFilter"
       :counts="attrCounts"
@@ -59,15 +61,17 @@ import { ref, computed, onMounted } from 'vue';
 import ImageCard from '../components/ImageCard.vue';
 import DotaLoader from '../components/Loader.vue';
 import AttributeFilterTabs from '../components/AttributeFilterTabs.vue';
+import SearchBar from '../components/SearchBar.vue';
 import { buildApiUrl } from '../config/api';
 
 export default {
   name: 'DotaHome',
-  components: { ImageCard, DotaLoader, AttributeFilterTabs },
+  components: { ImageCard, DotaLoader, AttributeFilterTabs, SearchBar },
   setup() {
-    const allHeroes   = ref([]);
-    const isLoading   = ref(false);
+    const allHeroes    = ref([]);
+    const isLoading    = ref(false);
     const activeFilter = ref('all');
+    const searchQuery  = ref('');
     const currentPage  = ref(1);
     const pageSize     = 30;
 
@@ -95,13 +99,17 @@ export default {
       return counts;
     });
 
-    // Client-side filtered list
+    // Client-side filtered list — attr tab + search query both apply
     const filteredHeroes = computed(() => {
-      if (activeFilter.value === 'all') return allHeroes.value;
+      const q    = searchQuery.value.trim().toLowerCase();
+      const attr = activeFilter.value;
       return allHeroes.value.filter(h => {
         const a = (h.primaryAttr || '').toLowerCase();
-        // backend returns 'all' for universal; our tab key is 'all_attr'
-        return activeFilter.value === 'all_attr' ? a === 'all' : a === activeFilter.value;
+        const matchAttr = attr === 'all'
+          ? true
+          : attr === 'all_attr' ? a === 'all' : a === attr;
+        const matchName = q ? (h.name || '').toLowerCase().includes(q) : true;
+        return matchAttr && matchName;
       });
     });
 
@@ -117,7 +125,7 @@ export default {
     onMounted(fetchData);
 
     return {
-      allHeroes, isLoading, activeFilter,
+      allHeroes, isLoading, activeFilter, searchQuery,
       attrCounts, filteredHeroes, pagedHeroes,
       currentPage, pageSize,
       onFilterChange, onPageChange,
