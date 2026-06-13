@@ -141,6 +141,93 @@
 
       <!-- ── Matchup panel ──────────────────────────── -->
       <div class="matchup-panel glass-panel">
+        <div v-if="itemType === 'team'" class="team-sections">
+          <section v-if="currentRoster.length" class="team-block">
+            <div class="team-block-head">
+              <h2 class="team-block-title">Current Roster</h2>
+              <span class="team-block-count">{{ currentRoster.length }} players</span>
+            </div>
+            <div class="roster-grid">
+              <router-link
+                v-for="player in currentRoster"
+                :key="player.accountId"
+                :to="`/player/${player.accountId}`"
+                class="roster-card"
+              >
+                <img
+                  v-if="player.avatar"
+                  :src="player.avatar"
+                  :alt="player.name"
+                  class="roster-avatar"
+                  loading="lazy"
+                />
+                <div v-else class="roster-avatar placeholder"></div>
+                <div class="roster-meta">
+                  <span class="roster-name">{{ player.name }}</span>
+                  <span class="roster-sub">
+                    <span v-if="player.countryCode">{{ countryFlag(player.countryCode) }}</span>
+                    <span>{{ roleLabel(player.fantasyRole) }}</span>
+                  </span>
+                </div>
+              </router-link>
+            </div>
+          </section>
+
+          <section v-if="formerRoster.length" class="team-block">
+            <div class="team-block-head">
+              <h2 class="team-block-title">Former Members</h2>
+              <span class="team-block-count">{{ formerRoster.length }} players</span>
+            </div>
+            <div class="roster-grid former">
+              <router-link
+                v-for="player in formerRoster"
+                :key="player.accountId"
+                :to="`/player/${player.accountId}`"
+                class="roster-card former"
+              >
+                <img
+                  v-if="player.avatar"
+                  :src="player.avatar"
+                  :alt="player.name"
+                  class="roster-avatar"
+                  loading="lazy"
+                />
+                <div v-else class="roster-avatar placeholder"></div>
+                <div class="roster-meta">
+                  <span class="roster-name">{{ player.name }}</span>
+                  <span class="roster-sub">{{ player.gamesPlayed }} games</span>
+                </div>
+              </router-link>
+            </div>
+          </section>
+
+          <section v-if="teamHeroes.length" class="team-block">
+            <div class="team-block-head">
+              <h2 class="team-block-title">Hero Pool</h2>
+              <span class="team-block-count">Top {{ teamHeroes.length }} picks</span>
+            </div>
+            <div class="hero-pool-grid">
+              <router-link
+                v-for="hero in teamHeroes"
+                :key="hero.heroId"
+                :to="`/item/${hero.heroId}/hero`"
+                class="pool-hero"
+                :class="getWinRateClass(hero.winRate)"
+              >
+                <img v-if="hero.heroImg" :src="hero.heroImg" :alt="hero.heroName" class="pool-hero-img" loading="lazy" />
+                <fallback v-else :imageUrl="hero.heroImg" />
+                <div class="pool-meta">
+                  <span class="pool-name">{{ hero.heroName }}</span>
+                  <span class="pool-picks">{{ hero.gamesPlayed }} picks</span>
+                  <span class="pool-wr" :class="getWinRateClass(hero.winRate)">{{ hero.winRate.toFixed(1) }}%</span>
+                </div>
+              </router-link>
+            </div>
+          </section>
+
+          <div v-if="currentRoster.length || teamHeroes.length" class="divider-rune team-divider">Team Matchups</div>
+        </div>
+
         <div v-if="itemType === 'hero' && heroBenchmarks?.metrics?.length" class="benchmarks-section">
           <div class="benchmarks-header">
             <h2 class="benchmarks-title">Performance Benchmarks</h2>
@@ -176,7 +263,7 @@
           <router-link
             v-for="item in sortedMatchups"
             :key="item.id"
-            :to="{ name: 'ItemCard', params: { id: item.id, type: 'hero' } }"
+            :to="{ name: 'ItemCard', params: { id: item.id, type: itemType === 'team' ? 'team' : 'hero' } }"
             class="matchup-item"
             :class="getWinRateClass(item.winRate)"
           >
@@ -232,6 +319,8 @@ export default defineComponent({
     const itemMatchups = ref([]);
     const heroStat     = ref(null);
     const heroBenchmarks = ref(null);
+    const teamPlayers    = ref([]);
+    const teamHeroes     = ref([]);
     const route        = useRoute();
     const isLoading    = ref(false);
     const error        = ref('');
@@ -283,6 +372,26 @@ export default defineComponent({
       return list;
     });
 
+    const currentRoster = computed(() =>
+      teamPlayers.value.filter((p) => p.isCurrent)
+    );
+    const formerRoster = computed(() =>
+      teamPlayers.value.filter((p) => !p.isCurrent)
+    );
+
+    const roleLabel = (role) => {
+      if (role === 0) return 'Core';
+      if (role === 1) return 'Support';
+      return 'Pro';
+    };
+
+    const countryFlag = (code) => {
+      if (!code || code.length !== 2) return '';
+      return String.fromCodePoint(
+        ...[...code.toUpperCase()].map((c) => c.charCodeAt(0) + 127397)
+      );
+    };
+
     const getWinRateClass = (wr) => {
       if (wr >= 55) return 'wr-high';
       if (wr <= 45) return 'wr-low';
@@ -304,6 +413,8 @@ export default defineComponent({
       detailReq.then(r => { mainItem.value = r.data; }).catch(() => {});
 
       if (type === 'hero') {
+        teamPlayers.value = [];
+        teamHeroes.value = [];
         axios.get(buildApiUrl('/hero-stats'))
           .then(r => { heroStat.value = r.data?.[id] ?? null; })
           .catch(() => {});
@@ -312,6 +423,13 @@ export default defineComponent({
           .catch(() => { heroBenchmarks.value = null; });
       } else {
         heroBenchmarks.value = null;
+        heroStat.value = null;
+        axios.get(buildApiUrl(`/team-players/${id}`))
+          .then((r) => { teamPlayers.value = r.data ?? []; })
+          .catch(() => { teamPlayers.value = []; });
+        axios.get(buildApiUrl(`/team-heroes/${id}`))
+          .then((r) => { teamHeroes.value = r.data ?? []; })
+          .catch(() => { teamHeroes.value = []; });
       }
 
       matchupReq.then(r => {
@@ -332,7 +450,9 @@ export default defineComponent({
     watch(() => route.params.id, () => fetchData(currentPage.value), { immediate: true });
 
     return {
-      mainItem, itemMatchups, heroStat, heroBenchmarks, isLoading, error,
+      mainItem, itemMatchups, heroStat, heroBenchmarks, teamPlayers, teamHeroes,
+      currentRoster, formerRoster, roleLabel, countryFlag,
+      isLoading, error,
       winRateClass, formatCount,
       itemType: route.params.type,
       onClickHandler: (page) => fetchData(page),
@@ -565,6 +685,147 @@ export default defineComponent({
 .benchmarks-divider {
   margin: 1.1rem 0 0.9rem;
 }
+
+/* ── Team roster & hero pool ────────────── */
+.team-sections {
+  margin-bottom: 1.1rem;
+}
+.team-block {
+  margin-bottom: 1.1rem;
+}
+.team-block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+.team-block-title {
+  margin: 0;
+  font-size: 0.92rem;
+}
+.team-block-count {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.team-divider {
+  margin: 0.2rem 0 0.9rem;
+}
+
+.roster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 0.55rem;
+}
+.roster-grid.former {
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+.roster-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 0.55rem;
+  border: 1px solid var(--border);
+  background: rgba(10, 14, 26, 0.75);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 150ms ease, transform 150ms ease;
+}
+.roster-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+.roster-card.former { opacity: 0.82; }
+.roster-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 0.4rem;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+.roster-avatar.placeholder {
+  background: rgba(255, 255, 255, 0.06);
+}
+.roster-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.roster-name {
+  font-family: "Cinzel", serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.roster-sub {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  display: flex;
+  gap: 0.3rem;
+}
+
+.hero-pool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 0.6rem;
+}
+.pool-hero {
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  padding: 0.45rem 0.45rem 0.55rem;
+  background: rgba(10, 14, 26, 0.8);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 160ms ease, border-color 160ms ease;
+  display: block;
+}
+.pool-hero:hover { transform: translateY(-3px); }
+.pool-hero.wr-high:hover { border-color: rgba(56, 197, 122, 0.45); }
+.pool-hero.wr-low:hover  { border-color: rgba(201, 53, 53, 0.45); }
+.pool-hero-img {
+  width: 100%;
+  height: 58px;
+  object-fit: contain;
+  margin-bottom: 0.35rem;
+}
+.pool-meta {
+  text-align: center;
+}
+.pool-name {
+  display: block;
+  font-family: "Cinzel", serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.2rem;
+}
+.pool-picks {
+  display: block;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.58rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+.pool-wr {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+.pool-wr.wr-high { color: var(--agi); }
+.pool-wr.wr-low  { color: var(--crimson); }
+.pool-wr.wr-mid  { color: var(--accent-bright); }
 
 /* ── Matchup panel ────────────────────────── */
 .matchup-panel {
