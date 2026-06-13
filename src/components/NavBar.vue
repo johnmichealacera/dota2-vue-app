@@ -36,6 +36,7 @@
         <router-link to="/heroes" class="nav-link" active-class="is-active">Heroes</router-link>
         <router-link to="/teams" class="nav-link" active-class="is-active">Teams</router-link>
         <router-link to="/matches" class="nav-link nav-link-matches" active-class="is-active">Matches</router-link>
+        <router-link to="/leagues" class="nav-link nav-link-leagues" active-class="is-active">Leagues</router-link>
         <router-link to="/players" class="nav-link" active-class="is-active">Players</router-link>
       </div>
     </nav>
@@ -205,6 +206,13 @@ export default defineComponent({
   border-color: rgba(56, 189, 248, 0.35);
   background: rgba(56, 189, 248, 0.08);
   box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+.nav-link-leagues.is-active {
+  color: #a78bfa;
+  border-color: rgba(167, 139, 250, 0.35);
+  background: rgba(167, 139, 250, 0.08);
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.2);
 }
 
 .nav-link-meta.is-active {

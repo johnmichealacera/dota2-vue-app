@@ -8,6 +8,8 @@ import PlayerDetail from './views/PlayerDetail.vue';
 // TODO: Re-enable when player search is turned back on
 // import SearchPage from './views/Search.vue';
 import MetaPage from './views/Meta.vue';
+import LeaguesPage from './views/Leagues.vue';
+import LeagueDetail from './views/LeagueDetail.vue';
 import ItemCard from './components/ItemCard.vue';
 
 const routes = [
@@ -35,6 +37,16 @@ const routes = [
     path: '/matches',
     name: 'DotaMatches',
     component: DotaMatches
+  },
+  {
+    path: '/leagues',
+    name: 'DotaLeagues',
+    component: LeaguesPage
+  },
+  {
+    path: '/league/:id',
+    name: 'LeagueDetail',
+    component: LeagueDetail
   },
   {
     path: '/match/:id',
