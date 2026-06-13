@@ -17,6 +17,8 @@
       </div>
     </div>
 
+    <live-ticker />
+
     <error-banner v-if="error" :message="error" :on-retry="fetchData" />
 
     <!-- ── Skeleton ─────────────────────────────────── -->
@@ -97,11 +99,12 @@ import axios from 'axios';
 import { ref, computed, onMounted } from 'vue';
 import ErrorBanner from '../components/ErrorBanner.vue';
 import RecordsWall from '../components/RecordsWall.vue';
+import LiveTicker from '../components/LiveTicker.vue';
 import { buildApiUrl } from '../config/api';
 
 export default {
   name: 'MetaPage',
-  components: { ErrorBanner, RecordsWall },
+  components: { ErrorBanner, RecordsWall, LiveTicker },
   setup() {
     const allHeroes = ref([]);
     const heroStats = ref({});
