@@ -1,5 +1,10 @@
 <template>
-  <div class="player-card" :class="glowClass">
+  <component
+    :is="player.accountId ? 'router-link' : 'div'"
+    :to="player.accountId ? `/player/${player.accountId}` : undefined"
+    class="player-card"
+    :class="glowClass"
+  >
     <div class="media-wrap">
       <img
         v-if="player.avatar"
@@ -15,7 +20,6 @@
         </svg>
       </div>
 
-      <!-- Hover overlay -->
       <div class="hover-overlay">
         <div class="hover-stats">
           <span class="stat-chip role" :class="roleChipClass">
@@ -38,7 +42,7 @@
       <h3 class="player-name">{{ player.name || '—' }}</h3>
       <span :class="roleBadgeClass">{{ roleLabel }}</span>
     </div>
-  </div>
+  </component>
 </template>
 
 <script>
@@ -94,6 +98,8 @@ export default {
   animation: cardIn 0.4s ease both;
   display: flex;
   flex-direction: column;
+  text-decoration: none;
+  color: inherit;
 }
 
 .player-card:hover { transform: translateY(-5px) scale(1.015); }
