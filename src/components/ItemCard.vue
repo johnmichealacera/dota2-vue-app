@@ -141,6 +141,19 @@
 
       <!-- ── Matchup panel ──────────────────────────── -->
       <div class="matchup-panel glass-panel">
+        <div v-if="itemType === 'hero' && heroBenchmarks?.metrics?.length" class="benchmarks-section">
+          <div class="benchmarks-header">
+            <h2 class="benchmarks-title">Performance Benchmarks</h2>
+            <p class="benchmarks-sub">Ranked pub percentile thresholds for this hero.</p>
+          </div>
+          <benchmark-bar
+            v-for="metric in heroBenchmarks.metrics"
+            :key="metric.key"
+            :metric="metric"
+          />
+          <div class="divider-rune benchmarks-divider">Matchups</div>
+        </div>
+
         <div class="matchup-header">
           <h1 class="matchup-title">{{ itemType === 'hero' ? 'Hero Matchups' : 'Team Matchups' }}</h1>
           <div class="matchup-controls">
@@ -208,15 +221,17 @@ import axios from 'axios';
 import DotaLoader from './Loader.vue';
 import Fallback from './Fallback.vue';
 import ErrorBanner from './ErrorBanner.vue';
+import BenchmarkBar from './BenchmarkBar.vue';
 import { buildApiUrl } from '../config/api';
 
 export default defineComponent({
   name: 'ItemCard',
-  components: { DotaLoader, Fallback, ErrorBanner },
+  components: { DotaLoader, Fallback, ErrorBanner, BenchmarkBar },
   setup() {
     const mainItem     = ref({});
     const itemMatchups = ref([]);
     const heroStat     = ref(null);
+    const heroBenchmarks = ref(null);
     const route        = useRoute();
     const isLoading    = ref(false);
     const error        = ref('');
@@ -292,6 +307,11 @@ export default defineComponent({
         axios.get(buildApiUrl('/hero-stats'))
           .then(r => { heroStat.value = r.data?.[id] ?? null; })
           .catch(() => {});
+        axios.get(buildApiUrl(`/hero-benchmarks/${id}`))
+          .then(r => { heroBenchmarks.value = r.data ?? null; })
+          .catch(() => { heroBenchmarks.value = null; });
+      } else {
+        heroBenchmarks.value = null;
       }
 
       matchupReq.then(r => {
@@ -312,7 +332,7 @@ export default defineComponent({
     watch(() => route.params.id, () => fetchData(currentPage.value), { immediate: true });
 
     return {
-      mainItem, itemMatchups, heroStat, isLoading, error,
+      mainItem, itemMatchups, heroStat, heroBenchmarks, isLoading, error,
       winRateClass, formatCount,
       itemType: route.params.type,
       onClickHandler: (page) => fetchData(page),
@@ -524,6 +544,27 @@ export default defineComponent({
 .agi-col     { color: var(--agi); }
 .int-col     { color: var(--int); }
 .crimson-col { color: var(--crimson); }
+
+/* ── Benchmarks ─────────────────────────── */
+.benchmarks-section {
+  margin-bottom: 1.25rem;
+}
+.benchmarks-header {
+  margin-bottom: 0.5rem;
+}
+.benchmarks-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+}
+.benchmarks-sub {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.benchmarks-divider {
+  margin: 1.1rem 0 0.9rem;
+}
 
 /* ── Matchup panel ────────────────────────── */
 .matchup-panel {
