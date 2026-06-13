@@ -288,6 +288,11 @@
         </div>
 
         <p v-if="sortedMatchups.length === 0" class="empty-state">No matchup data found.</p>
+
+        <hero-top-players
+          v-if="itemType === 'hero' && heroRankings.length"
+          :players="heroRankings"
+        />
       </div>
     </div>
 
@@ -309,16 +314,18 @@ import DotaLoader from './Loader.vue';
 import Fallback from './Fallback.vue';
 import ErrorBanner from './ErrorBanner.vue';
 import BenchmarkBar from './BenchmarkBar.vue';
+import HeroTopPlayers from './HeroTopPlayers.vue';
 import { buildApiUrl } from '../config/api';
 
 export default defineComponent({
   name: 'ItemCard',
-  components: { DotaLoader, Fallback, ErrorBanner, BenchmarkBar },
+  components: { DotaLoader, Fallback, ErrorBanner, BenchmarkBar, HeroTopPlayers },
   setup() {
     const mainItem     = ref({});
     const itemMatchups = ref([]);
     const heroStat     = ref(null);
     const heroBenchmarks = ref(null);
+    const heroRankings   = ref([]);
     const teamPlayers    = ref([]);
     const teamHeroes     = ref([]);
     const route        = useRoute();
@@ -421,8 +428,12 @@ export default defineComponent({
         axios.get(buildApiUrl(`/hero-benchmarks/${id}`))
           .then(r => { heroBenchmarks.value = r.data ?? null; })
           .catch(() => { heroBenchmarks.value = null; });
+        axios.get(buildApiUrl(`/hero-rankings/${id}`))
+          .then(r => { heroRankings.value = r.data?.players ?? []; })
+          .catch(() => { heroRankings.value = []; });
       } else {
         heroBenchmarks.value = null;
+        heroRankings.value = [];
         heroStat.value = null;
         axios.get(buildApiUrl(`/team-players/${id}`))
           .then((r) => { teamPlayers.value = r.data ?? []; })
@@ -450,7 +461,7 @@ export default defineComponent({
     watch(() => route.params.id, () => fetchData(currentPage.value), { immediate: true });
 
     return {
-      mainItem, itemMatchups, heroStat, heroBenchmarks, teamPlayers, teamHeroes,
+      mainItem, itemMatchups, heroStat, heroBenchmarks, heroRankings, teamPlayers, teamHeroes,
       currentRoster, formerRoster, roleLabel, countryFlag,
       isLoading, error,
       winRateClass, formatCount,
