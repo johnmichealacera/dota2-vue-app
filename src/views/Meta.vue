@@ -87,6 +87,8 @@
       </div>
 
     </template>
+
+    <records-wall v-if="!isLoading && !error" />
   </section>
 </template>
 
@@ -94,11 +96,12 @@
 import axios from 'axios';
 import { ref, computed, onMounted } from 'vue';
 import ErrorBanner from '../components/ErrorBanner.vue';
+import RecordsWall from '../components/RecordsWall.vue';
 import { buildApiUrl } from '../config/api';
 
 export default {
   name: 'MetaPage',
-  components: { ErrorBanner },
+  components: { ErrorBanner, RecordsWall },
   setup() {
     const allHeroes = ref([]);
     const heroStats = ref({});
