@@ -2,7 +2,7 @@
   <section>
     <!-- ── Breadcrumb ─────────────────────────────── -->
     <nav class="breadcrumb">
-      <router-link :to="itemType === 'team' ? '/teams' : '/'" class="bc-link">
+      <router-link :to="itemType === 'team' ? '/teams' : '/heroes'" class="bc-link">
         {{ itemType === 'team' ? 'Teams' : 'Heroes' }}
       </router-link>
       <span class="bc-sep">›</span>

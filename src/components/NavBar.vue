@@ -11,9 +11,29 @@
         </span>
         <span class="brand-name">Dota<span class="brand-accent">Mate</span></span>
       </router-link>
+      <!-- TODO: Re-enable player search when OpenDota /search is fast and returns relevant names -->
+      <!--
+      <form class="nav-search" @submit.prevent="submitSearch">
+        <span class="nav-search-icon" aria-hidden="true">
+          <svg viewBox="0 0 20 20" fill="none" width="14" height="14">
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <input
+          v-model="searchQuery"
+          class="nav-search-input"
+          type="search"
+          placeholder="Search players…"
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Search players"
+        />
+      </form>
+      -->
       <div class="links">
-        <router-link to="/meta" class="nav-link nav-link-meta" active-class="is-active">Meta</router-link>
-        <router-link to="/" class="nav-link" active-class="is-active" exact>Heroes</router-link>
+        <router-link to="/" class="nav-link nav-link-meta" active-class="is-active" exact>Meta</router-link>
+        <router-link to="/heroes" class="nav-link" active-class="is-active">Heroes</router-link>
         <router-link to="/teams" class="nav-link" active-class="is-active">Teams</router-link>
         <router-link to="/matches" class="nav-link nav-link-matches" active-class="is-active">Matches</router-link>
         <router-link to="/players" class="nav-link" active-class="is-active">Players</router-link>
@@ -24,7 +44,26 @@
 
 <script>
 import { defineComponent } from 'vue';
-export default defineComponent({ name: 'NavBar' });
+// import { ref } from 'vue';
+// import { useRouter } from 'vue-router';
+
+export default defineComponent({
+  name: 'NavBar',
+  // TODO: Re-enable player search when OpenDota /search is fast and returns relevant names
+  // setup() {
+  //   const router = useRouter();
+  //   const searchQuery = ref('');
+  //
+  //   const submitSearch = () => {
+  //     const q = searchQuery.value.trim();
+  //     if (q.length < 2) return;
+  //     router.push({ name: 'SearchPage', query: { q } });
+  //     searchQuery.value = '';
+  //   };
+  //
+  //   return { searchQuery, submitSearch };
+  // },
+});
 </script>
 
 <style>
@@ -39,6 +78,7 @@ export default defineComponent({ name: 'NavBar' });
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   padding: 0.5rem 1rem;
   position: relative;
   overflow: hidden;
@@ -93,9 +133,45 @@ export default defineComponent({ name: 'NavBar' });
   color: var(--accent-bright);
 }
 
+/* TODO: Re-enable player search when OpenDota /search is fast and returns relevant names
+.nav-search {
+  position: relative;
+  flex: 1;
+  max-width: 220px;
+  min-width: 0;
+}
+.nav-search-icon {
+  position: absolute;
+  left: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  display: flex;
+}
+.nav-search-input {
+  width: 100%;
+  padding: 0.38rem 0.65rem 0.38rem 1.75rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: rgba(12, 16, 34, 0.85);
+  color: var(--text);
+  font-family: "Barlow", sans-serif;
+  font-size: 0.78rem;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.nav-search-input::placeholder { color: var(--text-muted); }
+.nav-search-input:focus {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+*/
+
 .links {
   display: inline-flex;
   gap: 0.25rem;
+  flex-shrink: 0;
 }
 
 .nav-link {
@@ -139,7 +215,8 @@ export default defineComponent({ name: 'NavBar' });
 }
 
 @media (max-width: 480px) {
-  .header-nav { padding: 0.65rem 0.8rem; }
+  .header-nav { padding: 0.65rem 0.8rem; flex-wrap: wrap; }
+  /* .nav-search { order: 3; flex: 1 1 100%; max-width: none; margin-top: 0.35rem; } */
   .brand-name  { font-size: 0.88rem; }
 }
 </style>
