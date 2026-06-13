@@ -225,7 +225,21 @@
             </div>
           </section>
 
-          <div v-if="currentRoster.length || teamHeroes.length" class="divider-rune team-divider">Team Matchups</div>
+          <section v-if="teamMatches.length" class="team-block">
+            <div class="team-block-head">
+              <h2 class="team-block-title">Recent Matches</h2>
+              <span class="team-block-count">Last {{ Math.min(teamMatches.length, 10) }}</span>
+            </div>
+            <div class="team-matches-list">
+              <match-row
+                v-for="match in teamMatches.slice(0, 10)"
+                :key="match.matchId"
+                :match="match"
+              />
+            </div>
+          </section>
+
+          <div v-if="currentRoster.length || teamHeroes.length || teamMatches.length" class="divider-rune team-divider">Team Matchups</div>
         </div>
 
         <div v-if="itemType === 'hero' && heroBenchmarks?.metrics?.length" class="benchmarks-section">
@@ -315,11 +329,12 @@ import Fallback from './Fallback.vue';
 import ErrorBanner from './ErrorBanner.vue';
 import BenchmarkBar from './BenchmarkBar.vue';
 import HeroTopPlayers from './HeroTopPlayers.vue';
+import MatchRow from './MatchRow.vue';
 import { buildApiUrl } from '../config/api';
 
 export default defineComponent({
   name: 'ItemCard',
-  components: { DotaLoader, Fallback, ErrorBanner, BenchmarkBar, HeroTopPlayers },
+  components: { DotaLoader, Fallback, ErrorBanner, BenchmarkBar, HeroTopPlayers, MatchRow },
   setup() {
     const mainItem     = ref({});
     const itemMatchups = ref([]);
@@ -328,6 +343,7 @@ export default defineComponent({
     const heroRankings   = ref([]);
     const teamPlayers    = ref([]);
     const teamHeroes     = ref([]);
+    const teamMatches    = ref([]);
     const route        = useRoute();
     const isLoading    = ref(false);
     const error        = ref('');
@@ -422,6 +438,7 @@ export default defineComponent({
       if (type === 'hero') {
         teamPlayers.value = [];
         teamHeroes.value = [];
+        teamMatches.value = [];
         axios.get(buildApiUrl('/hero-stats'))
           .then(r => { heroStat.value = r.data?.[id] ?? null; })
           .catch(() => {});
@@ -441,6 +458,9 @@ export default defineComponent({
         axios.get(buildApiUrl(`/team-heroes/${id}`))
           .then((r) => { teamHeroes.value = r.data ?? []; })
           .catch(() => { teamHeroes.value = []; });
+        axios.get(buildApiUrl(`/team-matches/${id}`))
+          .then((r) => { teamMatches.value = r.data ?? []; })
+          .catch(() => { teamMatches.value = []; });
       }
 
       matchupReq.then(r => {
@@ -461,7 +481,7 @@ export default defineComponent({
     watch(() => route.params.id, () => fetchData(currentPage.value), { immediate: true });
 
     return {
-      mainItem, itemMatchups, heroStat, heroBenchmarks, heroRankings, teamPlayers, teamHeroes,
+      mainItem, itemMatchups, heroStat, heroBenchmarks, heroRankings, teamPlayers, teamHeroes, teamMatches,
       currentRoster, formerRoster, roleLabel, countryFlag,
       isLoading, error,
       winRateClass, formatCount,
@@ -837,6 +857,12 @@ export default defineComponent({
 .pool-wr.wr-high { color: var(--agi); }
 .pool-wr.wr-low  { color: var(--crimson); }
 .pool-wr.wr-mid  { color: var(--accent-bright); }
+
+.team-matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 
 /* ── Matchup panel ────────────────────────── */
 .matchup-panel {
