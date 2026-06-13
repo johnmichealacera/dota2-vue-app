@@ -15,7 +15,7 @@
           <span class="bstat-val">{{ allMatches.length }}</span> Recent Matches
         </span>
         <span class="bstat-sep">·</span>
-        <span class="bstat">Opens on OpenDota</span>
+        <span class="bstat">In-app scoreboard</span>
       </div>
     </div>
 

@@ -1,8 +1,6 @@
 <template>
-  <a
-    :href="`https://www.opendota.com/matches/${match.matchId}`"
-    target="_blank"
-    rel="noopener noreferrer"
+  <router-link
+    :to="`/match/${match.matchId}`"
     class="match-row glass-panel"
     :class="match.radiantWin ? 'radiant-won' : 'dire-won'"
   >
@@ -41,9 +39,9 @@
       <span class="meta-item time">{{ timeAgo(match.startTime) }}</span>
     </div>
 
-    <!-- External link indicator -->
-    <span class="ext-arrow" aria-hidden="true">↗</span>
-  </a>
+    <!-- In-app link indicator -->
+    <span class="ext-arrow" aria-hidden="true">›</span>
+  </router-link>
 </template>
 
 <script>
