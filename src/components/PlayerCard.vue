@@ -34,6 +34,10 @@
             <span class="stat-label">FROM</span>
             <span class="stat-val">{{ countryDisplay }}</span>
           </span>
+          <span v-if="mmrDisplay" class="stat-chip mmr">
+            <span class="stat-label">MMR</span>
+            <span class="stat-val">{{ mmrDisplay }}</span>
+          </span>
         </div>
       </div>
     </div>
@@ -83,6 +87,11 @@ export default {
         ...[...code.toUpperCase()].map(c => c.charCodeAt(0) + 127397)
       );
       return `${flag} ${code.toUpperCase()}`;
+    },
+    mmrDisplay() {
+      const mmr = this.player.mmr;
+      if (!mmr || mmr <= 0) return null;
+      return mmr.toLocaleString();
     },
   },
 };
@@ -208,6 +217,12 @@ export default {
   background: rgba(91, 160, 240, 0.18);
   border-left: 2px solid #5ba0f0;
   color: #7fbeff;
+}
+
+.stat-chip.mmr {
+  background: rgba(232, 168, 56, 0.18);
+  border-left: 2px solid #e8a838;
+  color: var(--accent-bright);
 }
 
 .stat-label { opacity: 0.7; }
