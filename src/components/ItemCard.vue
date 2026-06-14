@@ -242,6 +242,11 @@
           <div v-if="currentRoster.length || teamHeroes.length || teamMatches.length" class="divider-rune team-divider">Team Matchups</div>
         </div>
 
+        <div v-if="itemType === 'hero' && heroItemTimings.length" class="item-timings-wrap">
+          <item-timings :timings="heroItemTimings" />
+          <div class="divider-rune item-timings-divider">Performance</div>
+        </div>
+
         <div v-if="itemType === 'hero' && heroBenchmarks?.metrics?.length" class="benchmarks-section">
           <div class="benchmarks-header">
             <h2 class="benchmarks-title">Performance Benchmarks</h2>
@@ -328,18 +333,20 @@ import DotaLoader from './Loader.vue';
 import Fallback from './Fallback.vue';
 import ErrorBanner from './ErrorBanner.vue';
 import BenchmarkBar from './BenchmarkBar.vue';
+import ItemTimings from './ItemTimings.vue';
 import HeroTopPlayers from './HeroTopPlayers.vue';
 import MatchRow from './MatchRow.vue';
 import { buildApiUrl } from '../config/api';
 
 export default defineComponent({
   name: 'ItemCard',
-  components: { DotaLoader, Fallback, ErrorBanner, BenchmarkBar, HeroTopPlayers, MatchRow },
+  components: { DotaLoader, Fallback, ErrorBanner, BenchmarkBar, ItemTimings, HeroTopPlayers, MatchRow },
   setup() {
     const mainItem     = ref({});
     const itemMatchups = ref([]);
     const heroStat     = ref(null);
     const heroBenchmarks = ref(null);
+    const heroItemTimings = ref([]);
     const heroRankings   = ref([]);
     const teamPlayers    = ref([]);
     const teamHeroes     = ref([]);
@@ -448,8 +455,12 @@ export default defineComponent({
         axios.get(buildApiUrl(`/hero-rankings/${id}`))
           .then(r => { heroRankings.value = r.data?.players ?? []; })
           .catch(() => { heroRankings.value = []; });
+        axios.get(buildApiUrl(`/item-timings/${id}`))
+          .then(r => { heroItemTimings.value = r.data?.timings ?? []; })
+          .catch(() => { heroItemTimings.value = []; });
       } else {
         heroBenchmarks.value = null;
+        heroItemTimings.value = [];
         heroRankings.value = [];
         heroStat.value = null;
         axios.get(buildApiUrl(`/team-players/${id}`))
@@ -481,7 +492,7 @@ export default defineComponent({
     watch(() => route.params.id, () => fetchData(currentPage.value), { immediate: true });
 
     return {
-      mainItem, itemMatchups, heroStat, heroBenchmarks, heroRankings, teamPlayers, teamHeroes, teamMatches,
+      mainItem, itemMatchups, heroStat, heroBenchmarks, heroItemTimings, heroRankings, teamPlayers, teamHeroes, teamMatches,
       currentRoster, formerRoster, roleLabel, countryFlag,
       isLoading, error,
       winRateClass, formatCount,
@@ -695,6 +706,14 @@ export default defineComponent({
 .agi-col     { color: var(--agi); }
 .int-col     { color: var(--int); }
 .crimson-col { color: var(--crimson); }
+
+/* ── Item timings ───────────────────────── */
+.item-timings-wrap {
+  margin-bottom: 1.1rem;
+}
+.item-timings-divider {
+  margin: 1rem 0 0.85rem;
+}
 
 /* ── Benchmarks ─────────────────────────── */
 .benchmarks-section {
