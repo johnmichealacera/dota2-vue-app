@@ -9,11 +9,11 @@
       </div>
       <p class="eyebrow">Strategy Hub</p>
       <h1>Pro Meta Snapshot</h1>
-      <p class="subtitle">Pro circuit tier list ranked by win rate, picks, and bans — updated every 24 hours.</p>
+      <p class="subtitle">{{ bracketSubtitle }}</p>
       <div class="banner-stats" v-if="!isLoading && !error">
         <span class="bstat"><span class="bstat-val">{{ heroesWithStats.length }}</span> Heroes</span>
         <span class="bstat-sep">·</span>
-        <span class="bstat">Pro Circuit Data</span>
+        <span class="bstat">{{ bracketLabel }} Data</span>
       </div>
     </div>
 
@@ -46,10 +46,22 @@
             <div class="top3-stats">
               <span class="ts-pill wr">{{ hero.stat ? hero.stat.winRate.toFixed(1) + '%' : '—' }}</span>
               <span class="ts-pill pk">{{ hero.stat ? hero.stat.totalPicks : 0 }} picks</span>
-              <span class="ts-pill bn">{{ hero.stat ? hero.stat.totalBans : 0 }} bans</span>
+              <span class="ts-pill bn" v-if="hero.stat?.totalBans">{{ hero.stat.totalBans }} bans</span>
             </div>
           </div>
         </router-link>
+      </div>
+
+      <!-- Bracket filter -->
+      <div class="bracket-bar">
+        <span class="sort-label">Bracket</span>
+        <button
+          v-for="opt in bracketOpts"
+          :key="opt.key"
+          class="sort-btn"
+          :class="{ 'is-active': bracketMode === opt.key }"
+          @click="bracketMode = opt.key"
+        >{{ opt.label }}</button>
       </div>
 
       <!-- Sort toggle -->
@@ -96,7 +108,7 @@
 
 <script>
 import axios from 'axios';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import ErrorBanner from '../components/ErrorBanner.vue';
 import RecordsWall from '../components/RecordsWall.vue';
 import LiveTicker from '../components/LiveTicker.vue';
@@ -110,7 +122,15 @@ export default {
     const heroStats = ref({});
     const isLoading = ref(false);
     const error     = ref('');
-    const sortMode  = ref('winRate');
+    const sortMode    = ref('winRate');
+    const bracketMode = ref('all');
+
+    const bracketOpts = [
+      { key: 'all',      label: 'All Brackets' },
+      { key: 'legend',   label: 'Legend+'      },
+      { key: 'divine',   label: 'Divine+'      },
+      { key: 'immortal', label: 'Immortal'     },
+    ];
 
     const sortOpts = [
       { key: 'winRate',  label: 'Win Rate'   },
@@ -118,12 +138,28 @@ export default {
       { key: 'banRate',  label: 'Ban Count'   },
     ];
 
+    const bracketLabel = computed(() => {
+      const opt = bracketOpts.find((o) => o.key === bracketMode.value);
+      return opt?.label ?? 'Ranked';
+    });
+
+    const bracketSubtitle = computed(() => {
+      const labels = {
+        all: 'All ranked skill brackets',
+        legend: 'Legend and above',
+        divine: 'Divine and above',
+        immortal: 'Immortal only',
+      };
+      const scope = labels[bracketMode.value] ?? 'Ranked meta';
+      return `${scope} — tier list ranked by win rate and picks, updated every 24 hours.`;
+    });
+
     const fetchData = () => {
       isLoading.value = true;
       error.value = '';
       Promise.all([
-        axios.get(buildApiUrl('/heroes'),     { params: { pageSize: 999, page: 1 } }),
-        axios.get(buildApiUrl('/hero-stats')),
+        axios.get(buildApiUrl('/heroes'), { params: { pageSize: 999, page: 1 } }),
+        axios.get(buildApiUrl('/hero-stats'), { params: { bracket: bracketMode.value } }),
       ]).then(([heroRes, statRes]) => {
         allHeroes.value = heroRes.data?.items ?? [];
         heroStats.value = statRes.data ?? {};
@@ -133,6 +169,8 @@ export default {
         isLoading.value = false;
       });
     };
+
+    watch(bracketMode, fetchData);
 
     const heroesWithStats = computed(() =>
       allHeroes.value.map(h => ({
@@ -184,7 +222,8 @@ export default {
     onMounted(fetchData);
 
     return {
-      isLoading, error, sortMode, sortOpts,
+      isLoading, error, sortMode, sortOpts, bracketMode, bracketOpts,
+      bracketLabel, bracketSubtitle,
       heroesWithStats, top3, tieredHeroes,
       fetchData, formatChipStat,
     };
@@ -335,11 +374,22 @@ h1 {
 .ts-pill.pk { background: rgba(59, 130, 246, 0.14); color: #7fb5f5; }
 .ts-pill.bn { background: rgba(201, 53, 53, 0.14);  color: #f87171; }
 
-/* ── Sort bar ────────────────────────────────── */
+/* ── Bracket + sort bars ─────────────────────── */
+.bracket-bar,
 .sort-bar {
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  margin-bottom: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.bracket-bar {
+  margin-bottom: 0.45rem;
+}
+
+/* ── Sort bar ────────────────────────────────── */
+.sort-bar {
   margin-bottom: 0.65rem;
 }
 
