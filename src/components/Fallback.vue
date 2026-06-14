@@ -1,27 +1,30 @@
 <template>
-  <template v-if="imageUrl">
-    <object
-      class="w-full group-hover:opacity-30 img-card"
-      type="image/png"
-      :data="imageUrl"
-      width="120"
-      height="80"
-      aria-label="This image should exist, but alas it does not"
-    >
-      <img src="/team-logo.png" alt="Fallback image" width="120" height="80" class="w-full group-hover:opacity-30 img-card"/>
-    </object>
-  </template>
-  <template v-else>
-    <img src="/team-logo.png" alt="Fallback image" width="120" height="80" class="w-full group-hover:opacity-30 img-card"/>
-  </template>
+  <img
+    :src="imageUrl || '/team-logo.png'"
+    alt=""
+    width="120"
+    height="80"
+    loading="lazy"
+    decoding="async"
+    class="w-full group-hover:opacity-30 img-card"
+    @error="onError"
+  />
 </template>
+
 <script>
 export default {
-  name: "FallbackComponent",
+  name: 'FallbackComponent',
   props: {
     imageUrl: String,
-  }
-}
+  },
+  methods: {
+    onError(e) {
+      const el = e.target;
+      if (el.src.endsWith('/team-logo.png')) return;
+      el.src = '/team-logo.png';
+    },
+  },
+};
 </script>
 
 <style>
