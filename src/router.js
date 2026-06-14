@@ -5,8 +5,7 @@ import DotaTeams from './views/Teams.vue';
 import DotaMatches from './views/Matches.vue';
 import MatchDetail from './views/MatchDetail.vue';
 import PlayerDetail from './views/PlayerDetail.vue';
-// TODO: Re-enable when player search is turned back on
-// import SearchPage from './views/Search.vue';
+import SearchPage from './views/Search.vue';
 import MetaPage from './views/Meta.vue';
 import LeaguesPage from './views/Leagues.vue';
 import LeagueDetail from './views/LeagueDetail.vue';
@@ -58,12 +57,11 @@ const routes = [
     name: 'PlayerDetail',
     component: PlayerDetail
   },
-  // TODO: Re-enable player search route when OpenDota /search is fast and returns relevant names
-  // {
-  //   path: '/search',
-  //   name: 'SearchPage',
-  //   component: SearchPage
-  // },
+  {
+    path: '/search',
+    name: 'SearchPage',
+    component: SearchPage
+  },
   {
     path: '/meta',
     redirect: '/',
