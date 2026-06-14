@@ -6,6 +6,10 @@ const FileManagerPlugin = require('filemanager-webpack-plugin');
 const webpack = require('webpack');
 require('dotenv').config();
 
+const backendUrl = (
+  process.env.VUE_APP_DOTA_BACKEND_API || 'https://dota2-api-rust.onrender.com'
+).replace(/\/$/, '');
+
 module.exports = {
   entry: './src/main.js',
   output: {
@@ -72,7 +76,7 @@ module.exports = {
     proxy: [
       {
         context: ['/api'],
-        target: process.env.VUE_APP_DOTA_BACKEND_API || 'https://dota2-api-backend.onrender.com',
+        target: backendUrl,
         changeOrigin: true,
         pathRewrite: { '^/api': '' },
       },
