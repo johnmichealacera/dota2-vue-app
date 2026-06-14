@@ -73,6 +73,24 @@
         </div>
       </header>
 
+      <!-- TODO: Re-enable rank history when OpenDota /players/:id/ratings returns data (uncomment template + script below) -->
+      <!--
+      <section class="rating-panel glass-panel" v-if="!ratingsLoading">
+        <div class="panel-head">
+          <h2>Rank History</h2>
+          <span class="panel-count" v-if="ratings.length">{{ ratings.length }} records</span>
+        </div>
+        <mini-chart
+          v-if="chartValues.length >= 2"
+          :values="chartValues"
+          value-key="value"
+          :format="chartFormat"
+          label="Rank history"
+        />
+        <p v-else class="empty-state">No rank history available from OpenDota for this player.</p>
+      </section>
+      -->
+
       <div class="profile-grid">
         <section class="panel glass-panel">
           <div class="panel-head">
@@ -140,6 +158,8 @@ import { useRoute } from 'vue-router';
 import DotaLoader from '../components/Loader.vue';
 import ErrorBanner from '../components/ErrorBanner.vue';
 import PlayerMatchRow from '../components/PlayerMatchRow.vue';
+// TODO: Re-enable rank history when OpenDota /players/:id/ratings returns data (uncomment MiniChart + ratings logic below)
+// import MiniChart from '../components/MiniChart.vue';
 import { buildApiUrl } from '../config/api';
 import { resolveRankIcons } from '../utils/rankIcons';
 
@@ -151,6 +171,8 @@ export default {
     const profile = ref(null);
     const recentMatches = ref([]);
     const heroStats = ref([]);
+    // const ratings = ref([]);
+    // const ratingsLoading = ref(false);
     const isLoading = ref(false);
     const error = ref('');
 
@@ -181,6 +203,17 @@ export default {
     const rankMedal = computed(() => rankIcons.value.medal);
     const rankStar = computed(() => rankIcons.value.star);
 
+    // const chartFormat = computed(() =>
+    //   (ratings.value.some((r) => r.mmr) ? 'mmr' : 'tier')
+    // );
+
+    // const chartValues = computed(() => {
+    //   const useMmr = ratings.value.some((r) => r.mmr);
+    //   return ratings.value
+    //     .map((r) => ({ value: useMmr ? (r.mmr ?? 0) : r.rankTier }))
+    //     .filter((p) => p.value > 0);
+    // });
+
     const heroWinClass = (wr) => {
       if (wr >= 55) return 'wr-good';
       if (wr <= 45) return 'wr-bad';
@@ -208,10 +241,13 @@ export default {
       profile.value = null;
       recentMatches.value = [];
       heroStats.value = [];
+      // ratings.value = [];
+      // ratingsLoading.value = true;
 
       const profileReq = axios.get(buildApiUrl(`/player/${id}`));
       const matchesReq = axios.get(buildApiUrl(`/player-recent-matches/${id}`));
       const heroesReq = axios.get(buildApiUrl(`/player-heroes/${id}`));
+      // const ratingsReq = axios.get(buildApiUrl(`/player-ratings/${id}`));
 
       Promise.all([profileReq, matchesReq, heroesReq])
         .then(([profileRes, matchesRes, heroesRes]) => {
@@ -224,6 +260,11 @@ export default {
           error.value = 'Failed to load player profile. The backend may still be deploying — try again shortly.';
           isLoading.value = false;
         });
+
+      // ratingsReq
+      //   .then((res) => { ratings.value = res.data ?? []; })
+      //   .catch(() => { ratings.value = []; })
+      //   .finally(() => { ratingsLoading.value = false; });
     };
 
     watch(() => route.params.id, fetchPlayer, { immediate: true });
@@ -405,6 +446,12 @@ export default {
 .agi-col { color: var(--agi); }
 .crimson-col { color: var(--crimson); }
 .accent-col { color: var(--accent-bright); }
+
+.rating-panel {
+  border-radius: 0.85rem;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+}
 
 .profile-grid {
   display: grid;
